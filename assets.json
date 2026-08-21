@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "cdnBase": "https://file.garden/aNQEj1MKyWDQ8eyI/",
+  "meta": {
+    "title": "Urban Life Simulator (ULS) — Multi-Realm Edition",
+    "coreGoal": "Pay $50,000 Syndicate Debt or collect 4 Reality Encryption Keys to escape the simulation."
+  },
+  "manifests": {
+    "sfx": "data/sfx_data.js",
+    "radio": "data/radio_stations.js"
+  },
+  "realms": [
+    { "id": "uls", "name": "ULS City Hub", "entry": "realms/ulsCity.js" },
+    { "id": "living-hell", "name": "Living Hell", "entry": "realms/livingHell.js" },
+    { "id": "dreamworld", "name": "Dreamworld", "entry": "realms/dreamworld.js" },
+    { "id": "backrooms", "name": "The Backrooms", "entry": "realms/backrooms.js" }
+  ],
+  "images": {}
+}

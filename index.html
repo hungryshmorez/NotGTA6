@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Urban Life Simulator (ULS) - Multi-Realm Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link rel="stylesheet" href="life.css">
+</head>
+<body data-realm="uls">
+  <div id="app-viewport">
+    <!-- Top Player Status HUD -->
+    <header id="hud-mount"></header>
+
+    <!-- Main Dynamic Realm Container -->
+    <main id="realm-root">
+      <div id="scene-card" class="scene-card">
+        <div class="scene-media-wrapper">
+          <div id="scene-image" class="scene-img"></div>
+          <div class="scene-overlay-badge" id="scene-district-badge">CRYSTAL MARKET</div>
+        </div>
+        <div class="scene-content">
+          <h2 id="scene-title">Arrival in Chroma</h2>
+          <p id="scene-description">Neon reflects off wet asphalt as sirens echo across the district. What do you do?</p>
+          <div id="decision-buttons" class="decision-grid"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom Interactive Control Bar -->
+    <footer id="control-bar">
+      <div class="action-input-row">
+        <input type="text" id="action-input" placeholder="Type any custom action or choose above..." maxlength="180">
+        <button id="btn-act" class="btn-primary">ACT</button>
+      </div>
+      <div id="radio-dock"></div>
+    </footer>
+  </div>
+
+  <!-- Kernel Foundation Scripts -->
+  <script src="kernel/eventBus.js"></script>
+  <script src="kernel/saveState.js"></script>
+  <script src="kernel/safety.js"></script>
+  <script src="kernel/rng.js"></script>
+  <script src="kernel/time.js"></script>
+  <script src="kernel/weather.js"></script>
+  <script src="config/config.js"></script>
+
+  <!-- Audio & Data Manifests -->
+  <script src="data/sfx_data.js"></script>
+  <script src="data/radio_stations.js"></script>
+  <script src="systems/audio.js"></script>
+  <script src="assets-loader.js"></script>
+
+  <!-- Router, Bridges & Systems -->
+  <script src="router/realmRouter.js"></script>
+  <script src="bridge/backroomsBridge.js"></script>
+  <script src="bridge/livingHellBridge.js"></script>
+  <script src="bridge/dreamworldBridge.js"></script>
+  <script src="systems/economy.js"></script>
+  <script src="systems/game.js"></script>
+  <script src="systems/objectives.js"></script>
+
+  <!-- Realms -->
+  <script src="realms/ulsCity.js"></script>
+  <script src="realms/livingHell.js"></script>
+  <script src="realms/dreamworld.js"></script>
+  <script src="realms/backrooms.js"></script>
+
+  <!-- UI Components -->
+  <script src="ui/toast.js"></script>
+  <script src="ui/hud.js"></script>
+  <script src="ui/radio.js"></script>
+  <script src="ui/shop.js"></script>
+  <script src="ui/characterCreation.js"></script>
+  <script src="ui/credits.js"></script>
+
+  <!-- Bootstrap Application -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1. Ingest asset manifests (SFX packs, CDN normalization).
+      window.AssetsLoader.init();
+
+      // 2. Mount persistent UI shell.
+      window.PlayerHUD.mount(document.getElementById('hud-mount'));
+      window.UIRadio.mount(document.getElementById('radio-dock'));
+
+      // 3. Boot core systems.
+      window.GameManager.init();
+      window.Objectives.init();
+      window.LivingHellBridge.attach();
+
+      // 4. Action-bar binding: freeform actions advance the world clock.
+      var actInput = document.getElementById('action-input');
+      var actBtn = document.getElementById('btn-act');
+      function submitAction() {
+        var txt = actInput.value.trim();
+        if (!txt) return;
+        window.eventBus.publish('player.action.submitted', txt);
+        window.eventBus.publish('ui.toast', '⏱️ ' + txt);
+        actInput.value = '';
+      }
+      actBtn.onclick = submitAction;
+      actInput.onkeydown = function(e) { if (e.key === 'Enter') submitAction(); };
+
+      // 5. Character creation (first run) then enter the city hub.
+      window.CharacterCreation.maybeShow(function() {
+        window.RealmRouter.go('uls');
+      });
+
+      console.log('[ULS Engine] System running in production mode.');
+    });
+  </script>
+</body>
+</html>
