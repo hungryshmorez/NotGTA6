@@ -72,6 +72,42 @@ ui/                   hud, radio, shop, toast, characterCreation, credits
 - **Asymmetric HEAT.** Wanted stars don't decay passively — you lie low in safe
   districts or pay a fixer. High heat locks travel and closes legit storefronts.
 
+## AI narration & scene images
+
+The city hub is a **choose-your-own-story that talks back**. Type anything into
+the action bar (or click an AI-suggested choice); the narrator responds in
+character, drives events and consequences, and a fresh scene image is generated
+each turn.
+
+### Tiered narrator (token-lean by design)
+
+| Tier | Provider | When it's used |
+|------|----------|----------------|
+| Default | **Pollinations** (keyless, free) | Every turn, for everyone. No key, no cost, no tokens billed. |
+| Offline | **Local WebLLM** model | Optional one-time download (offered before any key entry). Runs in-browser via WebGPU. |
+| Premium | **Bring-your-own-key** (OpenAI-compatible) | *Only* on high-significance story beats (`byok.significanceThreshold`), so a paid key is spent sparingly. |
+
+Routing lives in `AIConfig.providerForSignificance()`. If any provider fails or
+the player is offline, a **scripted fallback** keeps the story going — the game
+never stalls.
+
+The narrator returns a strict JSON contract (`systems/ai/narrator.js`):
+`{ narration, choices, scene, effects{money,heat,health,sanity,water,hunger}, location, sfx, significance }`.
+Effects are applied through the economy/game systems; `scene` feeds the image
+generator; `location` can move the player between districts.
+
+### Scene images (free, keyless, **zero tokens**)
+
+Image generation is separate from the LLM and costs no tokens. Each turn:
+`systems/imageGen.js` builds a [Pollinations](https://pollinations.ai) image URL
+from the scene text with a **deterministic seed** (so a place looks consistent),
+**caches** by prompt+seed, shows a themed district gradient **instantly with a
+Ken Burns pan/zoom** for an animated feel, then cross-fades in the generated
+image. A bring-your-own-key and cinematic-video upgrade path are stubbed for
+pivotal beats.
+
+Configure all of this from the **⚙️ AI** button in the HUD.
+
 ## Content safety
 
 `kernel/safety.js` sanitizes role names and profanity by default. A per-save

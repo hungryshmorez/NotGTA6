@@ -361,9 +361,91 @@ body[data-realm="backrooms"] { --accent-cyan: #d8c65a; }
 body[data-realm="living-hell"] { --accent-cyan: #ff4d7d; }
 body[data-realm="dreamworld"] { --accent-cyan: #9a7bff; }
 
+/* --- Generated scene image + Ken Burns motion --- */
+.scene-media-wrapper { overflow: hidden; }
+.scene-gen-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 1;
+}
+.scene-gen-img.loaded { opacity: 1; }
+.scene-overlay-badge { z-index: 3; }
+
+/* Slow pan + zoom to make a still feel alive (free, mobile-safe). */
+@keyframes kenburns {
+  0%   { transform: scale(1.05) translate(0, 0); }
+  50%  { transform: scale(1.18) translate(-2%, -2%); }
+  100% { transform: scale(1.05) translate(0, 0); }
+}
+.kenburns { animation: kenburns 28s ease-in-out infinite; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .kenburns { animation: none; } }
+
+/* Loading dots over the scene while the narrator/image resolve. */
+.scene-loader {
+  position: absolute; top: 8px; right: 10px; z-index: 3;
+  display: none; gap: 4px;
+}
+.scene-loader.active { display: flex; }
+.scene-loader span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-cyan); opacity: 0.5;
+  animation: loaderpulse 1s infinite ease-in-out;
+}
+.scene-loader span:nth-child(2) { animation-delay: 0.15s; }
+.scene-loader span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes loaderpulse { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+.img-loading .scene-loader { display: flex; }
+
+/* --- Narrated story card --- */
+.story-meta {
+  font-size: 10px; letter-spacing: 0.5px; color: var(--text-muted);
+  text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+}
+.story-meta[data-provider]::after {
+  content: attr(data-provider);
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  border: 1px solid var(--panel-border); color: var(--text-muted);
+}
+.story-meta[data-provider="premium"]::after { color: var(--accent-gold); border-color: var(--accent-gold); }
+.story-meta[data-provider="offline"]::after { color: var(--accent-magenta); border-color: var(--accent-magenta); }
+.story-narration {
+  font-size: 14px !important; line-height: 1.6 !important; color: #dbe4f2 !important;
+  transition: opacity 0.2s ease;
+}
+.story-narration.dimmed { opacity: 0.45; }
+
+/* --- AI settings modal --- */
+.ai-modal .ai-section {
+  border-top: 1px solid var(--panel-border);
+  padding: 12px 0; display: flex; flex-direction: column; gap: 8px;
+}
+.ai-modal .ai-section:first-of-type { border-top: none; }
+.ai-lbl { font-size: 12px; font-weight: 700; color: var(--accent-cyan); }
+.ai-hint { font-weight: 400; color: var(--text-muted); font-size: 11px; }
+.ai-radio, .ai-check { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #ccd6e6; line-height: 1.4; }
+.ai-radio em { color: var(--text-muted); font-style: normal; }
+.ai-field { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--text-muted); }
+.ai-field input {
+  background: #0c0f16; border: 1px solid var(--panel-border);
+  color: #fff; padding: 7px 9px; border-radius: 5px; font-size: 12px;
+}
+.ai-download-row, .ai-progress { font-size: 11px; color: var(--text-muted); }
+.ai-offer {
+  background: #10151f; border: 1px solid var(--accent-gold);
+  border-radius: 6px; padding: 10px; font-size: 12px; color: #e6dcc0;
+}
+.ai-offer p { margin-bottom: 8px; line-height: 1.5; }
+.ai-offer-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.ai-save { width: 100%; padding: 10px; margin-top: 12px; }
+
 /* Responsive tightening */
 @media (max-width: 560px) {
-  .scene-media-wrapper { height: 140px; }
+  .scene-media-wrapper { height: 160px; }
   .hud-meters { min-width: 100%; order: 3; }
   .decision-grid { grid-template-columns: 1fr; }
 }

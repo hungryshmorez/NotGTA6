@@ -23,6 +23,7 @@
           '<button class="hud-btn" id="btn-hud-shop">🏪 Shop</button>' +
           '<button class="hud-btn" id="btn-hud-sleep">🛏️ Sleep</button>' +
           '<button class="hud-btn" id="btn-hud-tv">📺 Living Hell</button>' +
+          '<button class="hud-btn" id="btn-hud-ai">⚙️ AI</button>' +
         '</div>' +
       '</div>';
 
@@ -47,6 +48,9 @@
     };
     container.querySelector('#btn-hud-tv').onclick = function() {
       if (global.RealmRouter.isRegistered('living-hell')) global.RealmRouter.go('living-hell');
+    };
+    container.querySelector('#btn-hud-ai').onclick = function() {
+      global.eventBus.publish('ui.ai.open');
     };
 
     global.eventBus.subscribe('player.stats.updated', updateDisplay);

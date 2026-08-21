@@ -60,6 +60,14 @@
   <script src="systems/game.js"></script>
   <script src="systems/objectives.js"></script>
 
+  <!-- AI Narration & Image Generation -->
+  <script src="systems/ai/aiConfig.js"></script>
+  <script src="systems/ai/context.js"></script>
+  <script src="systems/ai/localModel.js"></script>
+  <script src="systems/ai/narrator.js"></script>
+  <script src="systems/imageGen.js"></script>
+  <script src="systems/story.js"></script>
+
   <!-- Realms -->
   <script src="realms/ulsCity.js"></script>
   <script src="realms/livingHell.js"></script>
@@ -72,6 +80,7 @@
   <script src="ui/radio.js"></script>
   <script src="ui/shop.js"></script>
   <script src="ui/characterCreation.js"></script>
+  <script src="ui/aiSettings.js"></script>
   <script src="ui/credits.js"></script>
 
   <!-- Bootstrap Application -->
@@ -95,12 +104,24 @@
       function submitAction() {
         var txt = actInput.value.trim();
         if (!txt) return;
-        window.eventBus.publish('player.action.submitted', txt);
-        window.eventBus.publish('ui.toast', '⏱️ ' + txt);
+        // Route freeform actions through the narrated Story loop when the city
+        // is active; otherwise just advance the mechanical world tick.
+        if (window.Story && window.Story.isMounted()) {
+          window.Story.turn(txt);
+        } else {
+          window.eventBus.publish('player.action.submitted', txt);
+        }
         actInput.value = '';
       }
       actBtn.onclick = submitAction;
       actInput.onkeydown = function(e) { if (e.key === 'Enter') submitAction(); };
+
+      // Lock the action bar while the narrator is thinking.
+      window.eventBus.subscribe('story.busy', function(busy) {
+        actBtn.disabled = !!busy;
+        actInput.disabled = !!busy;
+        actBtn.textContent = busy ? '…' : 'ACT';
+      });
 
       // 5. Character creation (first run) then enter the city hub.
       window.CharacterCreation.maybeShow(function() {
