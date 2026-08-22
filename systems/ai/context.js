@@ -31,7 +31,7 @@
   // Per-realm tone so the narrator shifts voice between realms.
   var TONES = {
     'uls':         'Tone: gritty open-world crime sandbox. React to the streets, gigs, NPCs and cops.',
-    'living-hell': 'Tone: manic live reality-TV. You are the Director/host; play to the cameras, the crowd, the sponsors. Everything is a spectacle for cash.',
+    'living-hell': 'Tone: manic 24/7 reality-house TV — this is "Living Hell House", a Big-Brother-meets-trashy-talk-show spin-off. Recurring cast you can invoke: PHIL (loud unhinged host), JENNA (ruthless producer in the earpiece), and ROCK HARD & HUGH JASS (two idiot control-room security guards). Cameras in every room; drama at 3 AM; lie detectors at breakfast. Everything is a spectacle staged for cash and clout.',
     'dreamworld':  'Tone: surreal, symbolic, unsettling dream logic. Physics bend; meaning matters more than realism. You ARE the dream.',
     'backrooms':   'Tone: liminal analog horror. Quiet dread, the hum of fluorescent lights, the sense of being watched. Sanity is fragile here.'
   };

@@ -3,11 +3,13 @@
 // payout mechanic (winnings wired to debt, failure costs sanity), then the
 // outcome is narrated through the Story loop with a fresh scene image.
 (function(global) {
+  // Themed to "Living Hell House" — the 24/7 reality-house spin-off: lie
+  // detectors at breakfast, 3 AM confrontations, cameras in every room.
   var CHALLENGES = [
-    { id: 'noodle', name: 'The Spicy Noodle Gauntlet', win: 0.6, payout: 1500, sanityLoss: 20 },
-    { id: 'booth',  name: 'Soundproof Isolation Booth', win: 0.5, payout: 3000, sanityLoss: 30 },
-    { id: 'foam',   name: 'Foam & Slime Gauntlet',      win: 0.7, payout: 900,  sanityLoss: 12 },
-    { id: 'confess',name: 'Diary Room Confession',      win: 0.8, payout: 600,  sanityLoss: 8 }
+    { id: 'polygraph', name: 'Lie Detector Breakfast', win: 0.6, payout: 1500, sanityLoss: 20 },
+    { id: 'confront',  name: '3 AM Confrontation',     win: 0.55, payout: 1800, sanityLoss: 24 },
+    { id: 'foam',      name: 'Backyard Slime Gauntlet', win: 0.7, payout: 900,  sanityLoss: 12 },
+    { id: 'confess',   name: 'Diary Room Confessional', win: 0.8, payout: 600,  sanityLoss: 8 }
   ];
 
   function bumpViewers(delta) {
@@ -58,11 +60,11 @@
     var viewers = global.saveState.get('slices.livingHell.viewers', 12);
     global.Story.mount(root, {
       realm: 'living-hell',
-      badge: '🔴 LIVE — THE FISH TANK',
+      badge: '🔴 LIVE — LIVING HELL HOUSE',
       districtKey: 'livinghell',
       showTravel: false,
-      opening: "The studio lights slam on. " + viewers + " viewers and climbing, all of them hungry to watch you bleed for cash. The Director's voice purrs in your earpiece: pick a challenge, survive it, and the winnings wipe straight off your debt. Fail, and the audience feasts on what's left of your mind.",
-      openingChoices: ['Play to the camera', 'Talk trash to the crowd', 'Scan the studio for an angle', 'Stall for time'],
+      opening: "\"WELCOME TO HELL!\" Phil's voice booms over the house PA as the doors seal behind you. Twenty-four hours a day, cameras in every room, " + viewers + " viewers and climbing. Producer Jenna purrs in your earpiece: survive a challenge on live TV and the winnings wipe straight off your Syndicate debt. Rock Hard and Hugh Jass — the world's worst security — pretend to guard the exits. Fail, and the audience feasts on what's left of your mind.",
+      openingChoices: ['Play to the cameras', 'Start drama with a housemate', 'Sweet-talk Jenna the producer', 'Scope the house for a blind spot'],
       openingScene: 'garish reality TV game show stage, blinding lights, live studio audience, cyberpunk',
       actions: actions(),
       exit: { label: '🚪 Slip out the eviction window (back to the city)', run: function() {
