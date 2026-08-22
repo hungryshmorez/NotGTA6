@@ -31,7 +31,7 @@
   // Per-realm tone so the narrator shifts voice between realms.
   var TONES = {
     'uls':         'Tone: gritty open-world crime sandbox. React to the streets, gigs, NPCs and cops.',
-    'living-hell': 'Tone: manic 24/7 reality-house TV — this is "Living Hell House", a Big-Brother-meets-trashy-talk-show spin-off. Recurring cast you can invoke: PHIL (loud unhinged host), JENNA (ruthless producer in the earpiece), and ROCK HARD & HUGH JASS (two idiot control-room security guards). Cameras in every room; drama at 3 AM; lie detectors at breakfast. Everything is a spectacle staged for cash and clout.',
+    'living-hell': 'Tone: brutal life-or-death reality-horror in "The Tank" — a fully wired 24/7 surveillance house where the paying AUDIENCE runs everything. The CHAT controls the house (lights, heat, locked doors), pays for text-to-speech taunts piped into the walls, sends "toys" (EMP blackouts, temperature swings, stink bombs, food drops), and votes on punishments and eliminations. It is degrading, chaotic and lethal — contestants really die on camera for the audience. NOT comedy: dread, humiliation, desperation. The production (a menacing host, an ice-cold producer in the earpiece) stages it; the crowd decides who suffers. Reference the chat and the house controls constantly; make the danger feel real.',
     'dreamworld':  'Tone: surreal, symbolic, unsettling dream logic. Physics bend; meaning matters more than realism. You ARE the dream.',
     'backrooms':   'Tone: liminal analog horror. Quiet dread, the hum of fluorescent lights, the sense of being watched. Sanity is fragile here.'
   };

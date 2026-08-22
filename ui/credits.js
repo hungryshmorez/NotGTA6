@@ -2,10 +2,10 @@
 (function(global) {
   var overlay = null;
 
-  function show(title, subtitle) {
+  function show(title, subtitle, kind) {
     if (overlay) close();
     overlay = document.createElement('div');
-    overlay.className = 'uls-modal-overlay victory-overlay';
+    overlay.className = 'uls-modal-overlay victory-overlay' + (kind === 'death' ? ' death-overlay' : '');
     overlay.innerHTML =
       '<div class="uls-modal victory-modal">' +
         '<h2 class="victory-title">' + title + '</h2>' +
@@ -36,6 +36,10 @@
   });
   global.eventBus.subscribe('game.victory.escape', function() {
     show('REALITY UNLOCKED', 'Four keys turn at once. You noclip permanently out of the simulation.');
+  });
+  global.eventBus.subscribe('game.over.death', function(data) {
+    var cause = (data && data.cause) || 'the city';
+    show('YOU DIED', 'The lights go out on the feed. ' + cause + ' finished you, and the Syndicate writes off the debt in blood.', 'death');
   });
 
   global.UICredits = { show: show, close: close };

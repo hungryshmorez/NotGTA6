@@ -60,6 +60,7 @@
   <script src="systems/economy.js"></script>
   <script src="systems/game.js"></script>
   <script src="systems/objectives.js"></script>
+  <script src="systems/death.js"></script>
 
   <!-- AI Narration & Image Generation -->
   <script src="systems/ai/aiConfig.js"></script>
@@ -81,6 +82,7 @@
   <!-- Realms -->
   <script src="realms/ulsCity.js"></script>
   <script src="realms/livingHell.js"></script>
+  <script src="realms/livingHellChat.js"></script>
   <script src="realms/dreamworld.js"></script>
   <script src="realms/backrooms.js"></script>
 
@@ -107,6 +109,7 @@
       // 3. Boot core systems.
       window.GameManager.init();
       window.Objectives.init();
+      window.DeathWatch.init();
       window.LivingHellBridge.attach();
 
       // 4. Action-bar binding: freeform actions advance the world clock.

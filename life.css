@@ -378,6 +378,9 @@ body {
 /* Victory / credits */
 .victory-modal { text-align: center; }
 .victory-title { color: var(--accent-cyan); font-size: 26px; letter-spacing: 2px; text-shadow: 0 0 14px var(--accent-cyan); margin-bottom: 8px; }
+.death-overlay { background: rgba(20,0,0,0.9); }
+.death-overlay .victory-title { color: var(--accent-magenta); text-shadow: 0 0 18px var(--accent-magenta); }
+.death-overlay .victory-modal { border-color: var(--accent-magenta); box-shadow: 0 0 40px rgba(255,0,85,0.4); }
 .victory-sub { color: #ccd6e6; font-size: 13px; margin-bottom: 14px; }
 .credits-roll { color: var(--text-muted); font-size: 12px; line-height: 1.8; margin-bottom: 16px; }
 
