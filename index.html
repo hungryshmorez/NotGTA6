@@ -48,6 +48,7 @@
   <!-- Audio & Data Manifests -->
   <script src="data/sfx_data.js"></script>
   <script src="data/radio_stations.js"></script>
+  <script src="data/radio_ads.js"></script>
   <script src="systems/audio.js"></script>
   <script src="assets-loader.js"></script>
 
@@ -59,10 +60,29 @@
   <script src="systems/economy.js"></script>
   <script src="systems/game.js"></script>
   <script src="systems/objectives.js"></script>
+  <script src="systems/death.js"></script>
+
+  <!-- AI Narration & Image Generation -->
+  <script src="systems/ai/aiConfig.js"></script>
+  <script src="systems/ai/context.js"></script>
+  <script src="systems/ai/localModel.js"></script>
+  <script src="systems/ai/narrator.js"></script>
+  <script src="systems/imageGen.js"></script>
+  <script src="systems/story.js"></script>
+  <script src="systems/tutorial.js"></script>
+
+  <!-- Real-time mini-games -->
+  <script src="systems/arcade/arcadeEngine.js"></script>
+  <script src="systems/arcade/game_fight.js"></script>
+  <script src="systems/arcade/game_drive.js"></script>
+  <script src="systems/arcade/game_move.js"></script>
+  <script src="systems/arcade/game_skill.js"></script>
+  <script src="systems/arcade/arcadeHooks.js"></script>
 
   <!-- Realms -->
   <script src="realms/ulsCity.js"></script>
   <script src="realms/livingHell.js"></script>
+  <script src="realms/livingHellChat.js"></script>
   <script src="realms/dreamworld.js"></script>
   <script src="realms/backrooms.js"></script>
 
@@ -70,9 +90,12 @@
   <script src="ui/toast.js"></script>
   <script src="ui/hud.js"></script>
   <script src="ui/radio.js"></script>
+  <script src="ui/radioAds.js"></script>
   <script src="ui/shop.js"></script>
   <script src="ui/characterCreation.js"></script>
+  <script src="ui/aiSettings.js"></script>
   <script src="ui/credits.js"></script>
+  <script src="ui/devHarness.js"></script>
 
   <!-- Bootstrap Application -->
   <script>
@@ -87,6 +110,8 @@
       // 3. Boot core systems.
       window.GameManager.init();
       window.Objectives.init();
+      window.DeathWatch.init();
+      window.DevHarness.init();
       window.LivingHellBridge.attach();
 
       // 4. Action-bar binding: freeform actions advance the world clock.
@@ -95,16 +120,33 @@
       function submitAction() {
         var txt = actInput.value.trim();
         if (!txt) return;
-        window.eventBus.publish('player.action.submitted', txt);
-        window.eventBus.publish('ui.toast', '⏱️ ' + txt);
+        // During the tutorial, the ACT box teaches the talk-back loop.
+        if (window.Tutorial && window.Tutorial.isActive()) {
+          window.Tutorial.handleAction(txt);
+        } else if (window.Story && window.Story.isMounted()) {
+          window.Story.turn(txt);
+        } else {
+          window.eventBus.publish('player.action.submitted', txt);
+        }
         actInput.value = '';
       }
       actBtn.onclick = submitAction;
       actInput.onkeydown = function(e) { if (e.key === 'Enter') submitAction(); };
 
-      // 5. Character creation (first run) then enter the city hub.
+      // Lock the action bar while the narrator is thinking.
+      window.eventBus.subscribe('story.busy', function(busy) {
+        actBtn.disabled = !!busy;
+        actInput.disabled = !!busy;
+        actBtn.textContent = busy ? '…' : 'ACT';
+      });
+
+      // 5. Character creation (first run) → mandatory tutorial → free roam.
       window.CharacterCreation.maybeShow(function() {
-        window.RealmRouter.go('uls');
+        if (window.Tutorial && !window.Tutorial.isComplete()) {
+          window.Tutorial.start(document.getElementById('realm-root'));
+        } else {
+          window.RealmRouter.go('uls');
+        }
       });
 
       console.log('[ULS Engine] System running in production mode.');

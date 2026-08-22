@@ -23,6 +23,8 @@
           '<button class="hud-btn" id="btn-hud-shop">🏪 Shop</button>' +
           '<button class="hud-btn" id="btn-hud-sleep">🛏️ Sleep</button>' +
           '<button class="hud-btn" id="btn-hud-tv">📺 Living Hell</button>' +
+          '<button class="hud-btn" id="btn-hud-explore">🚶 Explore</button>' +
+          '<button class="hud-btn" id="btn-hud-ai">⚙️ AI</button>' +
         '</div>' +
       '</div>';
 
@@ -36,17 +38,35 @@
     dom.barFood = container.querySelector('#bar-food');
     dom.stars = container.querySelector('#hud-wanted-stars');
 
+    function tutorialLock() {
+      if (global.Tutorial && global.Tutorial.isActive()) {
+        global.eventBus.publish('ui.toast', "🔒 Finish Roxy's tour first — free roam unlocks at the end.");
+        return true;
+      }
+      return false;
+    }
+
     container.querySelector('#btn-hud-city').onclick = function() {
+      if (tutorialLock()) return;
       if (global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls');
     };
     container.querySelector('#btn-hud-shop').onclick = function() {
       global.eventBus.publish('ui.shop.open');
     };
     container.querySelector('#btn-hud-sleep').onclick = function() {
+      if (tutorialLock()) return;
       if (global.RealmRouter.isRegistered('dreamworld')) global.RealmRouter.go('dreamworld');
     };
     container.querySelector('#btn-hud-tv').onclick = function() {
+      if (tutorialLock()) return;
       if (global.RealmRouter.isRegistered('living-hell')) global.RealmRouter.go('living-hell');
+    };
+    container.querySelector('#btn-hud-explore').onclick = function() {
+      if (tutorialLock()) return;
+      if (global.ArcadeHooks && global.ArcadeHooks.explore) global.ArcadeHooks.explore();
+    };
+    container.querySelector('#btn-hud-ai').onclick = function() {
+      global.eventBus.publish('ui.ai.open');
     };
 
     global.eventBus.subscribe('player.stats.updated', updateDisplay);

@@ -18,7 +18,12 @@
       for (var i = 0; i < cues.length; i++) {
         if (txt.indexOf(cues[i]) !== -1) { p += 0.012; break; }
       }
-      p = Math.min(0.04, p); // 4% clamp
+      // Sanity acts as a shield against reality glitches (per spec critique):
+      // a clear mind resists noclip; low sanity tears the veil wide open.
+      var sanity = global.saveState.get('global.sanity', 100);
+      if (sanity < 50) p *= 1 + (50 - sanity) / 50;   // up to 2x at 0 sanity
+      else p *= 0.7;                                    // calm mind: 30% less likely
+      p = Math.min(0.06, p); // clamp
 
       if (Math.random() < p) {
         global.saveState.set('slices.backrooms.glitchedOnce', true);

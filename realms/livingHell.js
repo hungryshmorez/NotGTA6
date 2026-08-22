@@ -1,90 +1,100 @@
-// /realms/livingHell.js - Living Hell (Fish Tank) reality-TV realm
-// High-risk, high-yield televised challenges. Payouts route straight to the
-// Syndicate debt via the Living Hell bridge. Failure costs sanity.
+// /realms/livingHell.js - Living Hell House — lethal reality-horror realm
+// Contestants really die on camera. Every challenge is a life-or-death gamble:
+// win and a huge payout wipes off your Syndicate debt; fail and it costs real
+// health (and can kill you outright). The narrator plays it as dread, not
+// comedy. Outcomes run through the Story loop with a fresh scene image.
 (function(global) {
+  // win = survival odds. payout = cash wired to debt on a win. healthLoss =
+  // real damage on failure (can be lethal). lethal = failure is certain death.
   var CHALLENGES = [
-    { id: 'noodle', name: 'The Spicy Noodle Gauntlet', win: 0.6, payout: 1500, sanityLoss: 20,
-      blurb: 'Devour the ghost-pepper bowl with no milk while chat screams.' },
-    { id: 'booth', name: 'Soundproof Isolation Booth', win: 0.5, payout: 3000, sanityLoss: 30,
-      blurb: '12 hours in a pitch-black sensory-deprivation cube.' },
-    { id: 'foam', name: 'Foam & Slime Gauntlet', win: 0.7, payout: 900, sanityLoss: 12,
-      blurb: 'Sprint the backyard obstacle course live on air.' },
-    { id: 'confess', name: 'Diary Room Confession', win: 0.8, payout: 600, sanityLoss: 8,
-      blurb: 'Bare a dark secret to the Director for viewer clout.' }
+    { id: 'polygraph', name: 'The Truth Chair',        win: 0.62, payout: 2000, healthLoss: 22, sanityLoss: 15,
+      blurb: 'Rigged polygraph. A wrong answer sends live current through the chair.' },
+    { id: 'confront',  name: '3 AM Blood Confrontation', win: 0.5, payout: 3200, healthLoss: 45, sanityLoss: 22,
+      blurb: 'A housemate comes at you in the dark with something sharp. Only one walks out clean.' },
+    { id: 'gauntlet',  name: 'The Razorwire Gauntlet', win: 0.55, payout: 4000, healthLoss: 55, sanityLoss: 12,
+      blurb: 'Sprint the backyard course strung with live wire and blades while the crowd bays.' },
+    { id: 'chamber',   name: 'The Chamber',            win: 0.5, payout: 8000, healthLoss: 100, sanityLoss: 30, lethal: true,
+      blurb: 'One loaded chamber. Pull the trigger on live TV. Win big — or die on air.' }
   ];
-
-  var el = null;
-
-  function mount(root) {
-    var viewers = global.saveState.get('slices.livingHell.viewers', 12);
-    var clout = global.saveState.get('slices.livingHell.clout', 5);
-
-    el = document.createElement('div');
-    el.className = 'scene-card realm-livinghell';
-    el.innerHTML =
-      '<div class="scene-media-wrapper">' +
-        '<div class="scene-img realm-bg-livinghell"></div>' +
-        '<div class="scene-overlay-badge">🔴 LIVE — THE FISH TANK</div>' +
-      '</div>' +
-      '<div class="scene-content">' +
-        '<h2>Living Hell</h2>' +
-        '<p>The studio lights blaze. <b id="lh-viewers">' + viewers + '</b> viewers are watching, ' +
-          'clout <b id="lh-clout">' + clout + '</b>. Survive a challenge, wire the payout straight ' +
-          'to your Syndicate debt. Fail, and the audience feasts on your sanity.</p>' +
-        '<div id="lh-challenges" class="decision-grid"></div>' +
-        '<button class="fixer-btn" id="lh-exit">🚪 Slip out the eviction window (back to the city)</button>' +
-      '</div>';
-    root.innerHTML = '';
-    root.appendChild(el);
-
-    var mount2 = el.querySelector('#lh-challenges');
-    CHALLENGES.forEach(function(ch) {
-      var btn = document.createElement('button');
-      btn.innerHTML = '<b>' + ch.name + '</b><br><span class="sub">' + ch.blurb +
-        ' — $' + ch.payout.toLocaleString('en-US') + '</span>';
-      btn.onclick = function() { runChallenge(ch); };
-      mount2.appendChild(btn);
-    });
-
-    el.querySelector('#lh-exit').onclick = function() {
-      global.LivingHellBridge.dispatch({ type: 'lh.exit' });
-    };
-  }
-
-  function runChallenge(ch) {
-    global.eventBus.publish('dialogue.start');
-    var win = Math.random() < ch.win;
-    if (win) {
-      global.LivingHellBridge.dispatch({ type: 'lh.payout', amount: ch.payout });
-      global.LivingHellBridge.dispatch({ type: 'lh.clout', delta: 3 });
-      bumpViewers(rand(20, 120));
-      global.eventBus.publish('ui.toast', '🏆 ' + ch.name + ' — SURVIVED! $' + ch.payout.toLocaleString('en-US') + ' to your debt.');
-    } else {
-      global.LivingHellBridge.dispatch({ type: 'lh.sanity', delta: -ch.sanityLoss });
-      global.LivingHellBridge.dispatch({ type: 'lh.clout', delta: 1 });
-      bumpViewers(rand(-40, 30));
-      global.eventBus.publish('ui.toast', '💥 ' + ch.name + ' — humiliation on live TV. −' + ch.sanityLoss + ' sanity.');
-    }
-    setTimeout(function() { global.eventBus.publish('dialogue.end'); }, 600);
-    refreshHeader();
-  }
 
   function bumpViewers(delta) {
     var v = global.saveState.get('slices.livingHell.viewers', 12) + delta;
     global.saveState.set('slices.livingHell.viewers', Math.max(0, v));
   }
-
-  function refreshHeader() {
-    if (!el) return;
-    var v = el.querySelector('#lh-viewers');
-    var c = el.querySelector('#lh-clout');
-    if (v) v.textContent = global.saveState.get('slices.livingHell.viewers', 12);
-    if (c) c.textContent = global.saveState.get('slices.livingHell.clout', 5);
-  }
-
   function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
-  function unmount() { el = null; }
+  function applyDamage(healthLoss, sanityLoss, cause) {
+    if (global.DeathWatch) global.DeathWatch.setCause(cause);
+    var stats = global.saveState.get('global');
+    stats.health = Math.max(0, stats.health - healthLoss);
+    stats.sanity = Math.max(0, stats.sanity - sanityLoss);
+    global.saveState.set('global', stats);
+    global.eventBus.publish('player.stats.updated', stats); // DeathWatch may fire here
+  }
+
+  // Runs the mechanic, returns an action string for the narrator to dramatize.
+  function runChallenge(ch) {
+    var win = Math.random() < ch.win;
+    if (win) {
+      global.LivingHellBridge.dispatch({ type: 'lh.payout', amount: ch.payout });
+      global.LivingHellBridge.dispatch({ type: 'lh.clout', delta: 4 });
+      bumpViewers(rand(40, 200));
+      global.GameAudio.play('cash');
+      return 'survive "' + ch.name + '" on live TV — blood-soaked and shaking, I watch $' + ch.payout.toLocaleString('en-US') + ' wipe off my Syndicate debt while the crowd screams my name';
+    }
+    // Failure hurts for real. It can be lethal.
+    global.GameAudio.play('ui_error');
+    bumpViewers(rand(-40, 120)); // a death spikes ratings
+    global.LivingHellBridge.dispatch({ type: 'lh.clout', delta: 2 });
+    applyDamage(ch.healthLoss, ch.sanityLoss, ch.name + ' on live TV');
+    if (ch.lethal || global.saveState.get('global.health', 0) <= 0) {
+      return 'lose "' + ch.name + '" on live television — the last thing I see is the red RECORDING light and the audience on its feet';
+    }
+    return 'fail "' + ch.name + '" and get carried off the set broken and bleeding as the ratings spike';
+  }
+
+  function actions() {
+    var list = CHALLENGES.map(function(ch) {
+      return {
+        label: '<b>' + ch.name + '</b> <span class="sub">$' + ch.payout.toLocaleString('en-US') + '</span>',
+        run: function() { return runChallenge(ch); }
+      };
+    });
+    // Skill-based cage fight to the finish — losing badly can kill you.
+    list.push({
+      label: '<b>🥊 Cage Fight to the Finish</b> <span class="sub">$5,000</span>',
+      run: function() {
+        if (global.DeathWatch) global.DeathWatch.setCause('the house champion in the cage');
+        global.ArcadeHooks.fight({
+          enemyName: 'The Butcher', difficulty: 2.2, damage: 26,
+          toDebt: 5000, rep: 12, healthLoss: 55, heatOnLoss: 0,
+          winText: 'leave the house champion motionless on the cage floor — $5,000 wired straight off my debt as the crowd bays for more',
+          loseText: 'go down under The Butcher\'s fists on live TV, the world going dark to the sound of the countdown'
+        });
+        return null;
+      }
+    });
+    return list;
+  }
+
+  function mount(root) {
+    var viewers = global.saveState.get('slices.livingHell.viewers', 12);
+    global.Story.mount(root, {
+      realm: 'living-hell',
+      badge: '🔴 LIVE — LIVING HELL HOUSE',
+      districtKey: 'livinghell',
+      showTravel: false,
+      opening: "The steel doors seal behind you with a sound like a coffin lid. This is the Tank — a fully wired smart-house where you live in the walls and " + viewers + " million paying viewers run the show. They control the lights, the heat, the doors; they pay to whisper in your ear and vote on your punishments. \"WELCOME TO HELL,\" the host says, and he isn't smiling. Survive their challenges and the grand prize wipes your Syndicate debt clean. Get voted out, or broken, or killed on camera — the chat doesn't care which, as long as it's good television.",
+      openingChoices: ['Stare down the nearest camera', 'Size up which challenge you can survive', 'Play the chat for sympathy', 'Look for a blind spot the cameras miss'],
+      openingScene: 'brutal blood-spattered reality TV death-game arena, harsh spotlights, roaring bloodthirsty crowd, dark and menacing',
+      actions: actions(),
+      exit: { label: '🚪 Try to slip out the eviction window (back to the city)', run: function() {
+        global.LivingHellBridge.dispatch({ type: 'lh.exit' });
+      } }
+    });
+  }
+
+  function unmount() { if (global.Story && global.Story.unmount) global.Story.unmount(); }
 
   global.RealmRouter.register('living-hell', { mount: mount, unmount: unmount });
 })(window);

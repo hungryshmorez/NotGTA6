@@ -120,6 +120,10 @@ body {
 .realm-bg-livinghell { background: linear-gradient(135deg, #3a0018, #ff0055, #1a0010); }
 .realm-bg-dreamworld { background: linear-gradient(135deg, #101a4a, #5a3ca8, #0a1030); }
 .realm-bg-backrooms  { background: linear-gradient(135deg, #b9a642, #d8c65a, #8f7f2e); }
+/* Fallback gradient aliases so ImageGen's district-<key> class also themes realms. */
+.district-livinghell { background: linear-gradient(135deg, #3a0018, #ff0055, #1a0010); }
+.district-dreamworld { background: linear-gradient(135deg, #101a4a, #5a3ca8, #0a1030); }
+.district-backrooms  { background: linear-gradient(135deg, #b9a642, #d8c65a, #8f7f2e); }
 
 .scene-overlay-badge {
   position: absolute;
@@ -183,6 +187,19 @@ body {
   margin-top: 8px;
 }
 
+/* Realm-specific persistent action buttons (challenges, doors, scavenge). */
+.realm-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.realm-action-btn {
+  flex: 1 1 auto; min-width: 160px;
+  background: #121a2c;
+  border: 1px solid var(--accent-cyan);
+  color: var(--text-main);
+  padding: 9px 12px; border-radius: 6px; cursor: pointer;
+  font-size: 12px; text-align: left;
+}
+.realm-action-btn:hover { background: #17233b; box-shadow: 0 0 10px rgba(0,240,255,0.25); }
+.realm-action-btn .sub { color: var(--accent-gold); font-weight: 700; margin-left: 6px; }
+
 /* --- Footer & Radio --- */
 #control-bar {
   background: rgba(18, 22, 32, 0.95);
@@ -240,6 +257,14 @@ body {
   cursor: pointer;
 }
 .r-btn.active { background: var(--accent-cyan); color: #000; }
+.radio-ad {
+  margin-top: 5px; padding: 4px 8px;
+  background: rgba(255,184,0,0.12); border: 1px solid var(--accent-gold);
+  border-radius: 4px; color: var(--accent-gold);
+  font-size: 10px; font-family: monospace; line-height: 1.3;
+  opacity: 0; transition: opacity 0.3s ease; min-height: 15px;
+}
+.radio-ad.show { opacity: 1; }
 .radio-stations-bar { display: flex; gap: 4px; margin-top: 4px; overflow-x: auto; }
 .st-btn {
   background: #111724;
@@ -353,6 +378,9 @@ body {
 /* Victory / credits */
 .victory-modal { text-align: center; }
 .victory-title { color: var(--accent-cyan); font-size: 26px; letter-spacing: 2px; text-shadow: 0 0 14px var(--accent-cyan); margin-bottom: 8px; }
+.death-overlay { background: rgba(20,0,0,0.9); }
+.death-overlay .victory-title { color: var(--accent-magenta); text-shadow: 0 0 18px var(--accent-magenta); }
+.death-overlay .victory-modal { border-color: var(--accent-magenta); box-shadow: 0 0 40px rgba(255,0,85,0.4); }
 .victory-sub { color: #ccd6e6; font-size: 13px; margin-bottom: 14px; }
 .credits-roll { color: var(--text-muted); font-size: 12px; line-height: 1.8; margin-bottom: 16px; }
 
@@ -361,9 +389,191 @@ body[data-realm="backrooms"] { --accent-cyan: #d8c65a; }
 body[data-realm="living-hell"] { --accent-cyan: #ff4d7d; }
 body[data-realm="dreamworld"] { --accent-cyan: #9a7bff; }
 
+/* --- Generated scene image + Ken Burns motion --- */
+.scene-media-wrapper { overflow: hidden; }
+.scene-gen-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  z-index: 1;
+}
+.scene-gen-img.loaded { opacity: 1; }
+.scene-overlay-badge { z-index: 3; }
+
+/* Slow pan + zoom to make a still feel alive (free, mobile-safe). */
+@keyframes kenburns {
+  0%   { transform: scale(1.05) translate(0, 0); }
+  50%  { transform: scale(1.18) translate(-2%, -2%); }
+  100% { transform: scale(1.05) translate(0, 0); }
+}
+.kenburns { animation: kenburns 28s ease-in-out infinite; will-change: transform; }
+@media (prefers-reduced-motion: reduce) { .kenburns { animation: none; } }
+
+/* Loading dots over the scene while the narrator/image resolve. */
+.scene-loader {
+  position: absolute; top: 8px; right: 10px; z-index: 3;
+  display: none; gap: 4px;
+}
+.scene-loader.active { display: flex; }
+.scene-loader span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent-cyan); opacity: 0.5;
+  animation: loaderpulse 1s infinite ease-in-out;
+}
+.scene-loader span:nth-child(2) { animation-delay: 0.15s; }
+.scene-loader span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes loaderpulse { 0%,100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+.img-loading .scene-loader { display: flex; }
+
+/* --- Narrated story card --- */
+.story-meta {
+  font-size: 10px; letter-spacing: 0.5px; color: var(--text-muted);
+  text-transform: uppercase; display: flex; align-items: center; gap: 8px;
+}
+.story-meta[data-provider]::after {
+  content: attr(data-provider);
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  border: 1px solid var(--panel-border); color: var(--text-muted);
+}
+.story-meta[data-provider="premium"]::after { color: var(--accent-gold); border-color: var(--accent-gold); }
+.story-meta[data-provider="offline"]::after { color: var(--accent-magenta); border-color: var(--accent-magenta); }
+.story-narration {
+  font-size: 14px !important; line-height: 1.6 !important; color: #dbe4f2 !important;
+  transition: opacity 0.2s ease;
+}
+.story-narration.dimmed { opacity: 0.45; }
+
+/* --- AI settings modal --- */
+.ai-modal .ai-section {
+  border-top: 1px solid var(--panel-border);
+  padding: 12px 0; display: flex; flex-direction: column; gap: 8px;
+}
+.ai-modal .ai-section:first-of-type { border-top: none; }
+.ai-lbl { font-size: 12px; font-weight: 700; color: var(--accent-cyan); }
+.ai-hint { font-weight: 400; color: var(--text-muted); font-size: 11px; }
+.ai-radio, .ai-check { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #ccd6e6; line-height: 1.4; }
+.ai-radio em { color: var(--text-muted); font-style: normal; }
+.ai-field { display: flex; flex-direction: column; gap: 3px; font-size: 11px; color: var(--text-muted); }
+.ai-field input {
+  background: #0c0f16; border: 1px solid var(--panel-border);
+  color: #fff; padding: 7px 9px; border-radius: 5px; font-size: 12px;
+}
+.ai-download-row, .ai-progress { font-size: 11px; color: var(--text-muted); }
+.ai-offer {
+  background: #10151f; border: 1px solid var(--accent-gold);
+  border-radius: 6px; padding: 10px; font-size: 12px; color: #e6dcc0;
+}
+.ai-offer p { margin-bottom: 8px; line-height: 1.5; }
+.ai-offer-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.ai-save { width: 100%; padding: 10px; margin-top: 12px; }
+
+/* --- Tutorial (First Night with Roxy) --- */
+.roxy-line { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+.roxy-name {
+  font-weight: 900; letter-spacing: 1px; font-size: 15px;
+  color: var(--accent-magenta); text-shadow: 0 0 10px var(--accent-magenta);
+}
+.roxy-title { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+.tutorial-card .story-narration { font-size: 14px !important; }
+.tutorial-card .story-narration b { color: var(--accent-cyan); }
+.tutorial-progress {
+  position: absolute; top: 8px; right: 10px; z-index: 3;
+  background: rgba(0,0,0,0.7); color: var(--accent-gold);
+  font-size: 10px; font-weight: 800; letter-spacing: 1px;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--accent-gold);
+}
+.tutorial-objective {
+  background: rgba(255,0,85,0.08);
+  border: 1px solid var(--accent-magenta);
+  border-radius: 6px; padding: 8px 10px;
+  font-size: 12px; font-weight: 700; color: #ff9bbf;
+}
+.tut-continue { padding: 10px 18px; margin-top: 4px; }
+#tut-continue-row { margin-top: 8px; }
+
+/* Coach-mark: pulse a ring around the control the player must use. */
+.coach-highlight {
+  position: relative;
+  animation: coachpulse 1.3s ease-in-out infinite;
+  border-color: var(--accent-cyan) !important;
+  z-index: 5;
+}
+@keyframes coachpulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0,240,255,0.6); }
+  50% { box-shadow: 0 0 0 6px rgba(0,240,255,0); }
+}
+@media (prefers-reduced-motion: reduce) { .coach-highlight { animation: none; box-shadow: 0 0 0 3px rgba(0,240,255,0.6); } }
+
+/* Dim non-essential HUD nav during the tutorial to keep focus. */
+body.tutorial-active #btn-hud-city { opacity: 0.4; }
+
+/* --- Arcade mini-game overlay --- */
+#arcade-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(4,6,10,0.92); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  animation: arcadein 0.2s ease;
+}
+#arcade-overlay.closing { animation: arcadeout 0.25s ease forwards; }
+@keyframes arcadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes arcadeout { from { opacity: 1; } to { opacity: 0; } }
+.arcade-frame {
+  width: min(94vw, 920px); height: min(92vh, 680px);
+  display: flex; flex-direction: column;
+  background: var(--bg-card); border: 1px solid var(--accent-cyan);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 40px rgba(0,240,255,0.25);
+}
+.arcade-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-bottom: 1px solid var(--panel-border);
+  background: rgba(0,0,0,0.3);
+}
+.arcade-title { font-weight: 800; color: var(--accent-cyan); font-size: 14px; letter-spacing: 1px; flex: 0 0 auto; }
+.arcade-status { flex: 1; text-align: center; color: var(--accent-gold); font-size: 13px; font-weight: 700; }
+.arcade-forfeit {
+  background: #201421; border: 1px solid var(--accent-magenta); color: #ff7ba6;
+  padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
+}
+#arcade-canvas { flex: 1; display: block; margin: 0 auto; touch-action: none; background: #0a0e18; }
+.arcade-hint { padding: 6px 12px; font-size: 11px; color: var(--text-muted); text-align: center; border-top: 1px solid var(--panel-border); }
+.arcade-hint b { color: var(--accent-cyan); }
+
+/* --- Dev harness (?dev=1 or Ctrl+Shift+D) --- */
+#dev-harness {
+  position: fixed; top: 60px; right: 10px; z-index: 3000;
+  width: 210px; max-height: 80vh; overflow-y: auto;
+  background: rgba(8,10,16,0.96); border: 1px solid var(--accent-gold);
+  border-radius: 8px; padding: 8px; font-size: 11px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.6);
+}
+.dev-head { display: flex; justify-content: space-between; align-items: center; color: var(--accent-gold); margin-bottom: 6px; }
+.dev-head button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; }
+.dev-group { margin-bottom: 8px; }
+.dev-title { color: var(--text-muted); text-transform: uppercase; font-size: 9px; letter-spacing: 1px; }
+.dev-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.dev-btn {
+  background: #161d2b; border: 1px solid var(--panel-border); color: var(--text-main);
+  padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 10px;
+}
+.dev-btn:hover { border-color: var(--accent-gold); }
+
+/* --- Character creation role chips --- */
+.cc-roles { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 12px; }
+.cc-role-chip {
+  background: #141b29; border: 1px solid var(--panel-border); color: var(--text-muted);
+  font-size: 11px; padding: 3px 8px; border-radius: 12px; cursor: pointer;
+}
+.cc-role-chip:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
 /* Responsive tightening */
 @media (max-width: 560px) {
-  .scene-media-wrapper { height: 140px; }
+  .scene-media-wrapper { height: 160px; }
   .hud-meters { min-width: 100%; order: 3; }
   .decision-grid { grid-template-columns: 1fr; }
+  #dev-harness { width: 170px; }
 }

@@ -1,54 +1,9 @@
-// /realms/backrooms.js - The Backrooms liminal scavenge realm
-// Reached by a reality glitch. A short scavenge loop: search rooms for
-// almond water, artifacts and Reality Encryption Key fragments, then find the
-// fire exit back to the city. Low sanity draw each move.
+// /realms/backrooms.js - The Backrooms liminal scavenge realm — AI narrated
+// The narrator plays the maze. Scavenge/exit/distract buttons apply the real
+// mechanics (almond water, artifacts, Reality Encryption Key fragments, sanity
+// drain, finding the fire exit); outcomes are narrated with a fresh image.
 (function(global) {
-  var el = null;
   var roomsSearched = 0;
-
-  function mount(root) {
-    roomsSearched = 0;
-    global.GameAudio.play('backrooms_hum');
-
-    el = document.createElement('div');
-    el.className = 'scene-card realm-backrooms';
-    el.innerHTML =
-      '<div class="scene-media-wrapper">' +
-        '<div class="scene-img realm-bg-backrooms"></div>' +
-        '<div class="scene-overlay-badge">🟨 LEVEL 0 — NOCLIP</div>' +
-      '</div>' +
-      '<div class="scene-content">' +
-        '<h2>The Backrooms</h2>' +
-        '<p id="br-log">Endless damp yellow carpet. The fluorescent hum presses on your skull. ' +
-          'Somewhere in the mono-yellow maze is a way out — and things worth taking.</p>' +
-        '<div id="br-actions" class="decision-grid"></div>' +
-      '</div>';
-    root.innerHTML = '';
-    root.appendChild(el);
-
-    renderActions();
-  }
-
-  function log(msg) {
-    var l = el && el.querySelector('#br-log');
-    if (l) l.textContent = msg;
-  }
-
-  function renderActions() {
-    var mount = el.querySelector('#br-actions');
-    mount.innerHTML = '';
-
-    addBtn(mount, '🔦 Search a cubicle', searchRoom);
-    addBtn(mount, '🚪 Look for the fire exit', findExit);
-    addBtn(mount, '🥤 Throw a soda can (distract entity)', distract);
-  }
-
-  function addBtn(mount, label, fn) {
-    var btn = document.createElement('button');
-    btn.textContent = label;
-    btn.onclick = fn;
-    mount.appendChild(btn);
-  }
 
   function drainSanity(n) {
     var stats = global.saveState.get('global');
@@ -61,61 +16,81 @@
     roomsSearched++;
     drainSanity(4);
     var roll = Math.random();
+    var outcome;
     if (roll < 0.18) {
-      // Reality Encryption Key fragment.
       global.Economy.grantKey();
-      log('Behind peeling wallpaper: a humming crystalline shard. A Reality Encryption Key fragment.');
+      outcome = 'pry back peeling wallpaper and find a humming crystalline shard — a Reality Encryption Key fragment';
     } else if (roll < 0.45) {
       var stats = global.saveState.get('global');
       stats.water = Math.min(100, stats.water + 30);
       stats.sanity = Math.min(100, stats.sanity + 20);
       global.saveState.set('global', stats);
       global.eventBus.publish('player.stats.updated', stats);
-      log('A sealed flask of Almond Water. It steadies your mind and quenches your thirst.');
+      outcome = 'find a sealed flask of Almond Water that steadies my mind and quenches my thirst';
     } else if (roll < 0.7) {
       var cash = 40 + Math.floor(Math.random() * 160);
-      global.Economy.adjust(cash, 'backrooms anomaly artifact');
-      log('A dead terminal coughs up a black-market crypto wallet. +$' + cash + '.');
+      global.Economy.adjust(cash, 'backrooms artifact');
+      outcome = 'crack a dead terminal for a black-market crypto wallet worth $' + cash;
     } else {
-      log('Empty drawers, dust, and the endless hum. Nothing here.');
+      outcome = 'search a cubicle and find only dust, empty drawers, and the endless hum';
     }
     checkSanity();
-    renderActions();
+    return outcome;
   }
 
   function distract() {
     drainSanity(1);
-    log('The can clatters away down a distant corridor. Something shuffles after it. Safer, for now.');
+    return 'hurl a soda can down a distant corridor to lure whatever is shuffling in the dark away from me';
   }
 
   function findExit() {
     drainSanity(3);
-    // Odds of finding the exit improve the longer you have scavenged.
     var chance = 0.35 + Math.min(0.4, roomsSearched * 0.08);
     if (Math.random() < chance) {
-      global.saveState.set('slices.backrooms.glitchedOnce', false); // allow future glitches
-      global.eventBus.publish('ui.toast', '🚪 A heavy fire door swings open onto a city alley. You made it out.');
+      global.saveState.set('slices.backrooms.glitchedOnce', false);
       global.GameAudio.stop('backrooms_hum');
-      if (global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls');
-    } else {
-      log('The EXIT sign was a trap — red neon leading deeper in. The maze rearranges behind you.');
-      renderActions();
+      setTimeout(function() {
+        if (global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls');
+      }, 1400);
+      return 'shove open a heavy fire door and spill out into a rain-soaked city alley — I MADE IT OUT';
     }
+    return 'chase a flickering EXIT sign only to find it was a trap, the red neon leading deeper into the maze';
   }
 
   function checkSanity() {
-    var sanity = global.saveState.get('global.sanity', 100);
-    if (sanity <= 0) {
-      global.eventBus.publish('ui.toast', '🌀 Your mind slips. The Backrooms spit you back into the city.');
+    if (global.saveState.get('global.sanity', 100) <= 0) {
       global.GameAudio.stop('backrooms_hum');
       global.saveState.set('slices.backrooms.glitchedOnce', false);
-      if (global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls');
+      global.eventBus.publish('ui.toast', '🌀 Your mind slips. The Backrooms spit you back into the city.');
+      setTimeout(function() {
+        if (global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls');
+      }, 800);
     }
+  }
+
+  function mount(root) {
+    roomsSearched = 0;
+    global.GameAudio.play('backrooms_hum');
+    global.Story.mount(root, {
+      realm: 'backrooms',
+      badge: '🟨 LEVEL 0 — NOCLIP',
+      districtKey: 'backrooms',
+      showTravel: false,
+      opening: "Endless damp yellow carpet. The fluorescent hum presses on the back of your skull like a thumb. You noclipped clean out of reality — and somewhere in this mono-yellow maze is the way back, plus things worth taking. Reality Encryption Key fragments hide in the walls. Move carefully; your sanity is the only fuel you've got.",
+      openingChoices: ['Read the graffiti on the wall', 'Listen for the entity', 'Follow the least-wrong corridor', 'Steady your breathing'],
+      openingScene: 'endless liminal yellow wallpaper rooms, damp carpet, buzzing fluorescent lights, backrooms',
+      actions: [
+        { label: '🔦 Search a cubicle', run: searchRoom },
+        { label: '🚪 Look for the fire exit', run: findExit },
+        { label: '🥤 Throw a soda can (distract)', run: distract }
+      ],
+      exit: null
+    });
   }
 
   function unmount() {
     global.GameAudio.stop('backrooms_hum');
-    el = null;
+    if (global.Story && global.Story.unmount) global.Story.unmount();
   }
 
   global.RealmRouter.register('backrooms', { mount: mount, unmount: unmount });

@@ -20,11 +20,25 @@
           '<input type="text" id="cc-name" maxlength="24" value="Rookie" /></label>' +
         '<label class="cc-field"><span>Role</span>' +
           '<input type="text" id="cc-role" maxlength="40" value="Wanderer" placeholder="e.g. Courier, Crew Member, Street Merchant" /></label>' +
+        '<div class="cc-roles" id="cc-roles"></div>' +
         '<label class="cc-check"><input type="checkbox" id="cc-adult" /> ' +
           '<span>Adult mode (disables content sanitization)</span></label>' +
         '<button id="cc-start" class="btn-primary cc-start">Enter Chroma City</button>' +
       '</div>';
     document.body.appendChild(overlay);
+
+    // Suggested roles for inspiration (looted concept from the canonical ULS).
+    var SUGGESTED = ['Courier', 'Street Merchant', 'Crew Member', 'Hacker', 'Fixer',
+      'Bounty Hunter', 'Nightlife Performer', 'Corporate Exec', 'Cab Driver', 'Drifter'];
+    var rolesMount = overlay.querySelector('#cc-roles');
+    SUGGESTED.forEach(function(role) {
+      var chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'cc-role-chip';
+      chip.textContent = role;
+      chip.onclick = function() { overlay.querySelector('#cc-role').value = role; };
+      rolesMount.appendChild(chip);
+    });
 
     overlay.querySelector('#cc-start').onclick = function() {
       var name = (overlay.querySelector('#cc-name').value || 'Rookie').trim() || 'Rookie';
