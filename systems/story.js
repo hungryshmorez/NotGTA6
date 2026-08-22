@@ -112,6 +112,10 @@
     var actions = (config && config.actions) || [];
     if (!actions.length) { dom.actions.style.display = 'none'; return; }
     dom.actions.style.display = '';
+    var lbl = document.createElement('div');
+    lbl.className = 'realm-actions-label';
+    lbl.textContent = config.realm === 'uls' ? 'HUSTLES' : 'CHALLENGES';
+    dom.actions.appendChild(lbl);
     actions.forEach(function(a) {
       var btn = document.createElement('button');
       btn.className = 'realm-action-btn';

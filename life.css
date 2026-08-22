@@ -32,57 +32,60 @@ body {
 
 /* --- HUD Header --- */
 #hud-mount {
-  background: rgba(18, 22, 32, 0.9);
+  background: linear-gradient(180deg, rgba(16,20,30,0.98), rgba(12,15,22,0.98));
   border-bottom: 1px solid var(--panel-border);
-  padding: 8px 12px;
+  padding: 7px 12px 8px;
   backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
 }
-.hud-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.hud-stat-group { display: flex; gap: 6px; flex-wrap: wrap; }
-.hud-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 4px;
-  border: 1px solid var(--panel-border);
-}
-.debt-badge { color: var(--accent-magenta); border-color: var(--accent-magenta); }
-.cash-badge { color: var(--accent-gold); border-color: var(--accent-gold); }
-.key-badge { color: var(--accent-cyan); border-color: var(--accent-cyan); }
+.hud { display: flex; flex-direction: column; gap: 7px; }
 
-.hud-meters { display: flex; gap: 8px; flex: 1; min-width: 220px; }
-.meter-item { display: flex; align-items: center; gap: 4px; flex: 1; font-size: 10px; }
-.m-bar { flex: 1; height: 6px; background: #0c0f16; border-radius: 3px; overflow: hidden; }
-.m-fill { height: 100%; transition: width 0.3s ease; }
-.m-fill.hp { background: #00ff88; }
-.m-fill.san { background: var(--accent-cyan); }
-.m-fill.h2o { background: #00a2ff; }
-.m-fill.food { background: #ffaa00; }
-
-.hud-stars { font-size: 14px; letter-spacing: 2px; color: #444d60; }
-.hud-stars.star-lvl-1 { color: #ffe600; }
-.hud-stars.star-lvl-2 { color: #ffcc00; }
-.hud-stars.star-lvl-3 { color: #ffaa00; }
-.hud-stars.star-lvl-4 { color: #ff6600; }
-.hud-stars.star-lvl-5 { color: var(--accent-magenta); text-shadow: 0 0 8px var(--accent-magenta); }
-
-.hud-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.hud-btn {
-  background: #171d2b;
-  border: 1px solid var(--panel-border);
-  color: var(--text-main);
-  padding: 4px 8px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 11px;
+/* Top row: location + wallet chips */
+.hud-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hud-loc { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.hud-loc #hud-district { font-size: 13px; font-weight: 800; letter-spacing: 0.5px; color: var(--text-main); }
+.loc-dot { font-size: 13px; }
+.hud-clock { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; white-space: nowrap; }
+.hud-wallet { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.chip {
+  font-size: 11px; font-weight: 800; letter-spacing: 0.3px;
+  padding: 3px 9px; border-radius: 999px;
+  background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border);
 }
-.hud-btn:hover { border-color: var(--accent-cyan); }
+.chip.cash  { color: var(--accent-gold); border-color: rgba(255,184,0,0.5); }
+.chip.debt  { color: var(--accent-magenta); border-color: rgba(255,0,85,0.5); }
+.chip.keys  { color: var(--accent-cyan); border-color: rgba(0,240,255,0.4); }
+.chip.stars { letter-spacing: 1px; color: #465067; border-color: transparent; background: none; padding: 3px 2px; font-size: 13px; }
+.chip.stars.star-lvl-1 { color: #ffe600; }
+.chip.stars.star-lvl-2 { color: #ffcc00; }
+.chip.stars.star-lvl-3 { color: #ffaa00; }
+.chip.stars.star-lvl-4 { color: #ff6600; }
+.chip.stars.star-lvl-5 { color: var(--accent-magenta); text-shadow: 0 0 8px var(--accent-magenta); }
+
+/* Meters row */
+.hud-meters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.meter { display: flex; align-items: center; gap: 5px; }
+.m-ico { font-size: 11px; width: 14px; text-align: center; }
+.m-track { flex: 1; height: 7px; background: #0a0d14; border-radius: 4px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.04); }
+.m-fill { height: 100%; transition: width 0.35s ease; border-radius: 4px; }
+.m-fill.hp   { background: linear-gradient(90deg, #0a9, #00ff88); }
+.m-fill.san  { background: linear-gradient(90deg, #06a, var(--accent-cyan)); }
+.m-fill.h2o  { background: linear-gradient(90deg, #05a, #00a2ff); }
+.m-fill.food { background: linear-gradient(90deg, #a70, #ffaa00); }
+.m-val { font-size: 10px; font-weight: 700; color: var(--text-muted); width: 20px; text-align: right; }
+.m-val.low { color: var(--accent-magenta); }
+
+/* Nav: compact icon buttons */
+.hud-nav { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 1px; }
+.nav-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: #141a27; border: 1px solid var(--panel-border); color: var(--text-main);
+  padding: 5px 10px; border-radius: 7px; cursor: pointer; font-size: 11px; white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.nav-btn:hover { border-color: var(--accent-cyan); background: #182034; }
+.nav-ico { font-size: 13px; }
+.nav-lbl { font-weight: 600; }
 
 /* --- Main Scene Card --- */
 #realm-root {
@@ -95,22 +98,32 @@ body {
 .scene-card {
   background: var(--bg-card);
   border: 1px solid var(--panel-border);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.35);
 }
 .scene-media-wrapper {
   position: relative;
-  height: 200px;
-  background: #000;
+  height: 190px;
+  background: #05070c;
+  flex: 0 0 auto;
 }
 .scene-img {
   width: 100%;
   height: 100%;
   background-size: cover;
   background-position: center;
+}
+/* Vignette + subtle grid so an empty (image-less) panel still reads as a scene. */
+.scene-media-wrapper::before {
+  content: '';
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,0.15), rgba(0,0,0,0.55)),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.03) 0 1px, transparent 1px 40px);
 }
 /* Procedural gradient backdrops per district / realm (zero image deps). */
 .district-glass      { background: linear-gradient(135deg, #0b2233, #12405c, #071019); }
@@ -128,23 +141,26 @@ body {
 .scene-overlay-badge {
   position: absolute;
   bottom: 8px;
-  left: 8px;
-  background: rgba(0,0,0,0.75);
+  left: 8px; z-index: 3;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(0,240,255,0.4);
   color: var(--accent-cyan);
   font-size: 10px;
   font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
+  letter-spacing: 0.5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  backdrop-filter: blur(2px);
 }
 .scene-content {
-  padding: 14px;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  flex: 1;
+  gap: 11px;
 }
 .scene-content h2 { font-size: 16px; color: var(--accent-cyan); }
 .scene-content p { font-size: 13px; line-height: 1.5; color: #ccd6e6; }
+#realm-root { align-items: stretch; }
 
 /* District travel bar */
 .district-travel { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
@@ -161,44 +177,55 @@ body {
 .travel-btn.current { border-color: var(--accent-cyan); color: var(--accent-cyan); }
 .travel-btn.locked { opacity: 0.45; cursor: not-allowed; border-color: var(--accent-magenta); }
 
+/* Narrative choices — the primary buttons. */
 .decision-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
-  margin-top: auto;
 }
 .decision-grid button {
-  background: #192030;
-  border: 1px solid #28344c;
+  position: relative;
+  background: linear-gradient(180deg, #1a2233, #141b29);
+  border: 1px solid #2a374f;
+  border-left: 3px solid var(--accent-cyan);
   color: var(--text-main);
-  padding: 10px;
-  border-radius: 6px;
+  padding: 11px 12px;
+  border-radius: 8px;
   text-align: left;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
+  line-height: 1.35;
+  transition: transform 0.08s ease, border-color 0.15s ease, background 0.15s ease;
 }
-.decision-grid button:hover { background: #222b40; border-color: var(--accent-cyan); }
+.decision-grid button:hover { background: #202a3e; border-left-color: var(--accent-gold); transform: translateY(-1px); }
 .decision-grid button:disabled { opacity: 0.4; cursor: not-allowed; }
 .decision-grid button .sub { color: var(--text-muted); font-size: 11px; font-weight: 400; }
 .fixer-btn {
-  background: #201421 !important;
+  background: #1c1420 !important;
   border: 1px solid var(--accent-magenta) !important;
   color: #ff7ba6 !important;
-  margin-top: 8px;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  cursor: pointer; font-size: 12px; text-align: left; width: 100%;
 }
 
-/* Realm-specific persistent action buttons (challenges, doors, scavenge). */
-.realm-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.realm-action-btn {
-  flex: 1 1 auto; min-width: 160px;
-  background: #121a2c;
-  border: 1px solid var(--accent-cyan);
-  color: var(--text-main);
-  padding: 9px 12px; border-radius: 6px; cursor: pointer;
-  font-size: 12px; text-align: left;
+/* Hustles / challenges — secondary compact chips (visually lighter than choices). */
+.realm-actions-label {
+  font-size: 10px; letter-spacing: 1.5px; color: var(--text-muted);
+  text-transform: uppercase; margin-bottom: 2px;
 }
-.realm-action-btn:hover { background: #17233b; box-shadow: 0 0 10px rgba(0,240,255,0.25); }
-.realm-action-btn .sub { color: var(--accent-gold); font-weight: 700; margin-left: 6px; }
+.realm-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.realm-action-btn {
+  background: #10151f;
+  border: 1px solid #223049;
+  color: #cdd8ea;
+  padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  font-size: 11px; text-align: left; line-height: 1.2;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.realm-action-btn:hover { background: #16203180; border-color: var(--accent-cyan); }
+.realm-action-btn b { font-weight: 700; }
+.realm-action-btn .sub { color: var(--accent-gold); font-weight: 700; margin-left: 5px; }
 
 /* --- Footer & Radio --- */
 #control-bar {
@@ -231,32 +258,38 @@ body {
 
 /* Radio Mini-Drawer */
 .uls-radio-widget {
-  background: #0c0f16;
+  background: #0a0d14;
   border: 1px solid #1a2233;
-  border-radius: 6px;
-  padding: 6px 10px;
+  border-radius: 8px;
+  padding: 7px 10px;
   font-size: 11px;
 }
 .radio-lcd {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
   gap: 8px;
   color: #55c8ff;
   font-family: monospace;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
-.radio-lcd .lcd-track { flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.radio-controls { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.radio-controls input[type=range] { flex: 1; min-width: 80px; }
+.radio-lcd .lcd-station { font-weight: 700; white-space: nowrap; }
+.radio-lcd .lcd-track { flex: 1; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.85; }
+.radio-lcd .lcd-time { white-space: nowrap; opacity: 0.6; }
+.radio-controls { display: flex; align-items: center; gap: 5px; }
+/* Cap the volume slider so it stops sprawling across the whole bar. */
+.radio-controls input[type=range] { flex: 0 1 130px; max-width: 130px; margin-left: auto; height: 4px; accent-color: var(--accent-cyan); }
 .r-btn {
-  background: #171f30;
+  background: #161e2e;
   border: 1px solid #26334d;
   color: #fff;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 3px 8px;
+  border-radius: 5px;
   cursor: pointer;
+  font-size: 11px;
 }
-.r-btn.active { background: var(--accent-cyan); color: #000; }
+.r-btn:hover { border-color: var(--accent-cyan); }
+.r-btn.active { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
 .radio-ad {
   margin-top: 5px; padding: 4px 8px;
   background: rgba(255,184,0,0.12); border: 1px solid var(--accent-gold);
@@ -572,8 +605,11 @@ body.tutorial-active #btn-hud-city { opacity: 0.4; }
 
 /* Responsive tightening */
 @media (max-width: 560px) {
-  .scene-media-wrapper { height: 160px; }
-  .hud-meters { min-width: 100%; order: 3; }
+  #realm-root { padding: 10px; }
+  .scene-media-wrapper { height: 150px; }
+  .hud-meters { grid-template-columns: repeat(2, 1fr); gap: 6px 12px; }
   .decision-grid { grid-template-columns: 1fr; }
+  .nav-btn { padding: 5px 9px; }
+  .hud-loc #hud-district { font-size: 12px; }
   #dev-harness { width: 170px; }
 }

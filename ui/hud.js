@@ -1,109 +1,117 @@
-// /ui/hud.js - Touch-Friendly Responsive Player HUD
+// /ui/hud.js - Compact, organized player HUD
 (function(global) {
   var dom = {};
 
+  var METERS = [
+    { key: 'health', cls: 'hp',   ico: '❤' },
+    { key: 'sanity', cls: 'san',  ico: '🧠' },
+    { key: 'water',  cls: 'h2o',  ico: '💧' },
+    { key: 'hunger', cls: 'food', ico: '🍔' }
+  ];
+
+  var NAV = [
+    { id: 'city',    ico: '🏙️', label: 'City' },
+    { id: 'shop',    ico: '🏪', label: 'Shop' },
+    { id: 'explore', ico: '🚶', label: 'Explore' },
+    { id: 'sleep',   ico: '🛏️', label: 'Sleep' },
+    { id: 'tv',      ico: '📺', label: 'Hell' },
+    { id: 'ai',      ico: '⚙️', label: 'AI' }
+  ];
+
   function init(container) {
+    var metersHtml = METERS.map(function(m) {
+      return '<div class="meter" title="' + m.key + '">' +
+        '<span class="m-ico">' + m.ico + '</span>' +
+        '<div class="m-track"><div class="m-fill ' + m.cls + '" id="bar-' + m.cls + '"></div></div>' +
+        '<span class="m-val" id="val-' + m.cls + '">100</span></div>';
+    }).join('');
+
+    var navHtml = NAV.map(function(n) {
+      return '<button class="nav-btn" id="nav-' + n.id + '" title="' + n.label + '">' +
+        '<span class="nav-ico">' + n.ico + '</span><span class="nav-lbl">' + n.label + '</span></button>';
+    }).join('');
+
     container.innerHTML =
-      '<div class="hud-container">' +
-        '<div class="hud-stat-group">' +
-          '<div class="hud-badge district-badge" id="hud-district">DISTRICT: MARKET</div>' +
-          '<div class="hud-badge debt-badge" id="hud-debt">DEBT: $50,000</div>' +
-          '<div class="hud-badge cash-badge" id="hud-cash">CASH: $150</div>' +
-          '<div class="hud-badge key-badge" id="hud-keys">KEYS: 0/4</div>' +
+      '<div class="hud">' +
+        '<div class="hud-top">' +
+          '<div class="hud-loc"><span class="loc-dot">🌆</span><span id="hud-district">CRYSTAL MARKET</span>' +
+            '<span class="hud-clock" id="hud-clock">Day 1 · 08:00</span></div>' +
+          '<div class="hud-wallet">' +
+            '<span class="chip cash" id="hud-cash">$150</span>' +
+            '<span class="chip debt" id="hud-debt">$50,000</span>' +
+            '<span class="chip keys" id="hud-keys">🔑 0/4</span>' +
+            '<span class="chip stars" id="hud-wanted-stars">☆☆☆☆☆</span>' +
+          '</div>' +
         '</div>' +
-        '<div class="hud-meters">' +
-          '<div class="meter-item" title="Health"><span class="m-lbl">HP</span><div class="m-bar"><div class="m-fill hp" id="bar-hp"></div></div></div>' +
-          '<div class="meter-item" title="Sanity"><span class="m-lbl">SAN</span><div class="m-bar"><div class="m-fill san" id="bar-san"></div></div></div>' +
-          '<div class="meter-item" title="Water"><span class="m-lbl">H2O</span><div class="m-bar"><div class="m-fill h2o" id="bar-h2o"></div></div></div>' +
-          '<div class="meter-item" title="Hunger"><span class="m-lbl">FOOD</span><div class="m-bar"><div class="m-fill food" id="bar-food"></div></div></div>' +
-        '</div>' +
-        '<div class="hud-stars" id="hud-wanted-stars">☆☆☆☆☆</div>' +
-        '<div class="hud-actions">' +
-          '<button class="hud-btn" id="btn-hud-city">🏙️ City</button>' +
-          '<button class="hud-btn" id="btn-hud-shop">🏪 Shop</button>' +
-          '<button class="hud-btn" id="btn-hud-sleep">🛏️ Sleep</button>' +
-          '<button class="hud-btn" id="btn-hud-tv">📺 Living Hell</button>' +
-          '<button class="hud-btn" id="btn-hud-explore">🚶 Explore</button>' +
-          '<button class="hud-btn" id="btn-hud-ai">⚙️ AI</button>' +
-        '</div>' +
+        '<div class="hud-meters">' + metersHtml + '</div>' +
+        '<div class="hud-nav">' + navHtml + '</div>' +
       '</div>';
 
     dom.district = container.querySelector('#hud-district');
-    dom.debt = container.querySelector('#hud-debt');
+    dom.clock = container.querySelector('#hud-clock');
     dom.cash = container.querySelector('#hud-cash');
+    dom.debt = container.querySelector('#hud-debt');
     dom.keys = container.querySelector('#hud-keys');
-    dom.barHp = container.querySelector('#bar-hp');
-    dom.barSan = container.querySelector('#bar-san');
-    dom.barH2o = container.querySelector('#bar-h2o');
-    dom.barFood = container.querySelector('#bar-food');
     dom.stars = container.querySelector('#hud-wanted-stars');
+    METERS.forEach(function(m) {
+      dom['bar_' + m.cls] = container.querySelector('#bar-' + m.cls);
+      dom['val_' + m.cls] = container.querySelector('#val-' + m.cls);
+    });
 
-    function tutorialLock() {
+    function tutLock() {
       if (global.Tutorial && global.Tutorial.isActive()) {
         global.eventBus.publish('ui.toast', "🔒 Finish Roxy's tour first — free roam unlocks at the end.");
         return true;
       }
       return false;
     }
-
-    container.querySelector('#btn-hud-city').onclick = function() {
-      if (tutorialLock()) return;
-      if (global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls');
+    var handlers = {
+      city:    function() { if (!tutLock() && global.RealmRouter.isRegistered('uls')) global.RealmRouter.go('uls'); },
+      shop:    function() { global.eventBus.publish('ui.shop.open'); },
+      explore: function() { if (!tutLock() && global.ArcadeHooks && global.ArcadeHooks.explore) global.ArcadeHooks.explore(); },
+      sleep:   function() { if (!tutLock() && global.RealmRouter.isRegistered('dreamworld')) global.RealmRouter.go('dreamworld'); },
+      tv:      function() { if (!tutLock() && global.RealmRouter.isRegistered('living-hell')) global.RealmRouter.go('living-hell'); },
+      ai:      function() { global.eventBus.publish('ui.ai.open'); }
     };
-    container.querySelector('#btn-hud-shop').onclick = function() {
-      global.eventBus.publish('ui.shop.open');
-    };
-    container.querySelector('#btn-hud-sleep').onclick = function() {
-      if (tutorialLock()) return;
-      if (global.RealmRouter.isRegistered('dreamworld')) global.RealmRouter.go('dreamworld');
-    };
-    container.querySelector('#btn-hud-tv').onclick = function() {
-      if (tutorialLock()) return;
-      if (global.RealmRouter.isRegistered('living-hell')) global.RealmRouter.go('living-hell');
-    };
-    container.querySelector('#btn-hud-explore').onclick = function() {
-      if (tutorialLock()) return;
-      if (global.ArcadeHooks && global.ArcadeHooks.explore) global.ArcadeHooks.explore();
-    };
-    container.querySelector('#btn-hud-ai').onclick = function() {
-      global.eventBus.publish('ui.ai.open');
-    };
+    NAV.forEach(function(n) {
+      var el = container.querySelector('#nav-' + n.id);
+      if (el) el.onclick = handlers[n.id];
+    });
 
     global.eventBus.subscribe('player.stats.updated', updateDisplay);
     global.eventBus.subscribe('state.reset', function() { updateDisplay(global.saveState.get('global')); });
     updateDisplay(global.saveState.get('global'));
   }
 
-  function fmtMoney(n) {
-    return (n || 0).toLocaleString('en-US');
-  }
+  function fmt(n) { return (n || 0).toLocaleString('en-US'); }
 
   function updateDisplay(stats) {
     if (!stats) return;
-    dom.cash.textContent = 'CASH: $' + fmtMoney(stats.money);
-    dom.debt.textContent = 'DEBT: $' + fmtMoney(stats.debt != null ? stats.debt : 50000);
-    if (dom.keys) dom.keys.textContent = 'KEYS: ' + (stats.keysCollected || 0) + '/4';
+    dom.cash.textContent = '$' + fmt(stats.money);
+    dom.debt.textContent = '$' + fmt(stats.debt != null ? stats.debt : 50000);
+    if (dom.keys) dom.keys.textContent = '🔑 ' + (stats.keysCollected || 0) + '/4';
 
     var district = global.saveState.get('player.district', 'market');
-    dom.district.textContent = 'DISTRICT: ' + String(district).toUpperCase();
+    var label = global.AIContext ? global.AIContext.districtLabel(district).split(' (')[0] : district;
+    dom.district.textContent = String(label).toUpperCase();
+    if (dom.clock && global.GameClock) dom.clock.textContent = global.GameClock.format();
 
-    dom.barHp.style.width = (stats.health || 0) + '%';
-    dom.barSan.style.width = (stats.sanity || 0) + '%';
-    dom.barH2o.style.width = (stats.water || 0) + '%';
-    dom.barFood.style.width = (stats.hunger || 0) + '%';
+    METERS.forEach(function(m) {
+      var v = Math.round(stats[m.key] || 0);
+      if (dom['bar_' + m.cls]) dom['bar_' + m.cls].style.width = v + '%';
+      if (dom['val_' + m.cls]) {
+        dom['val_' + m.cls].textContent = v;
+        dom['val_' + m.cls].className = 'm-val' + (v <= 20 ? ' low' : '');
+      }
+    });
 
-    // GTA Wanted Stars (0 to 5)
     var heat = stats.heat || 0;
-    var starCount = heat >= 90 ? 5 : heat >= 70 ? 4 : heat >= 50 ? 3 : heat >= 30 ? 2 : heat >= 10 ? 1 : 0;
-    var starStr = '';
-    for (var i = 0; i < 5; i++) {
-      starStr += (i < starCount) ? '★' : '☆';
-    }
-    dom.stars.textContent = starStr;
-    dom.stars.className = 'hud-stars star-lvl-' + starCount;
+    var sc = heat >= 90 ? 5 : heat >= 70 ? 4 : heat >= 50 ? 3 : heat >= 30 ? 2 : heat >= 10 ? 1 : 0;
+    var s = '';
+    for (var i = 0; i < 5; i++) s += (i < sc ? '★' : '☆');
+    dom.stars.textContent = s;
+    dom.stars.className = 'chip stars star-lvl-' + sc;
   }
 
-  global.PlayerHUD = {
-    mount: function(container) { init(container); }
-  };
+  global.PlayerHUD = { mount: function(container) { init(container); } };
 })(window);
