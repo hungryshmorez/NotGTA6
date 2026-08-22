@@ -48,7 +48,13 @@
       global.saveState.set('global', stats);
       global.eventBus.publish('player.stats.updated', stats);
 
-      // 4. Trigger Backrooms Anomaly Evaluator
+      // 4. Bounty-hunter ambush when the heat runs high (open city only).
+      var realm = global.RealmRouter && global.RealmRouter.getActiveRealm();
+      if (stats.heat >= 70 && realm === 'uls' && !(global.Arcade && global.Arcade.isOpen()) && Math.random() < 0.18) {
+        global.eventBus.publish('encounter.bounty');
+      }
+
+      // 5. Trigger Backrooms Anomaly Evaluator
       if (global.BackroomsBridge) {
         global.BackroomsBridge.evaluateNoclip(actionText);
       }

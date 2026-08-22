@@ -500,6 +500,38 @@ body[data-realm="dreamworld"] { --accent-cyan: #9a7bff; }
 /* Dim non-essential HUD nav during the tutorial to keep focus. */
 body.tutorial-active #btn-hud-city { opacity: 0.4; }
 
+/* --- Arcade mini-game overlay --- */
+#arcade-overlay {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(4,6,10,0.92); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  animation: arcadein 0.2s ease;
+}
+#arcade-overlay.closing { animation: arcadeout 0.25s ease forwards; }
+@keyframes arcadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes arcadeout { from { opacity: 1; } to { opacity: 0; } }
+.arcade-frame {
+  width: min(94vw, 920px); height: min(92vh, 680px);
+  display: flex; flex-direction: column;
+  background: var(--bg-card); border: 1px solid var(--accent-cyan);
+  border-radius: 12px; overflow: hidden;
+  box-shadow: 0 0 40px rgba(0,240,255,0.25);
+}
+.arcade-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; border-bottom: 1px solid var(--panel-border);
+  background: rgba(0,0,0,0.3);
+}
+.arcade-title { font-weight: 800; color: var(--accent-cyan); font-size: 14px; letter-spacing: 1px; flex: 0 0 auto; }
+.arcade-status { flex: 1; text-align: center; color: var(--accent-gold); font-size: 13px; font-weight: 700; }
+.arcade-forfeit {
+  background: #201421; border: 1px solid var(--accent-magenta); color: #ff7ba6;
+  padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
+}
+#arcade-canvas { flex: 1; display: block; margin: 0 auto; touch-action: none; background: #0a0e18; }
+.arcade-hint { padding: 6px 12px; font-size: 11px; color: var(--text-muted); text-align: center; border-top: 1px solid var(--panel-border); }
+.arcade-hint b { color: var(--accent-cyan); }
+
 /* Responsive tightening */
 @media (max-width: 560px) {
   .scene-media-wrapper { height: 160px; }

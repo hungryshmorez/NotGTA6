@@ -32,12 +32,26 @@
   }
 
   function actions() {
-    return CHALLENGES.map(function(ch) {
+    var list = CHALLENGES.map(function(ch) {
       return {
         label: '<b>' + ch.name + '</b> <span class="sub">$' + ch.payout.toLocaleString('en-US') + '</span>',
         run: function() { return runChallenge(ch); }
       };
     });
+    // A skill-based cage brawl: win it live for a big payout straight to debt.
+    list.push({
+      label: '<b>🥊 Cage Brawl</b> <span class="sub">$2,500</span>',
+      run: function() {
+        global.ArcadeHooks.fight({
+          enemyName: 'The Champion', difficulty: 1.8, damage: 18,
+          toDebt: 2500, rep: 10, healthLoss: 30, heatOnLoss: 0,
+          winText: 'batter the house champion live on air — $2,500 wired straight off my debt as the crowd loses it',
+          loseText: 'get knocked out cold in the cage on live TV, humiliated'
+        });
+        return null;
+      }
+    });
+    return list;
   }
 
   function mount(root) {

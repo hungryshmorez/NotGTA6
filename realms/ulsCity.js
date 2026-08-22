@@ -23,6 +23,15 @@
       realm: 'uls',
       showTravel: true,
       actions: [
+        { label: '🥊 Start a street brawl', run: function() {
+            global.ArcadeHooks.fight({
+              enemyName: 'Street Tough', difficulty: 1, damage: 15,
+              reward: 120, rep: 6, healthLoss: 22, heatOnLoss: 8,
+              winText: 'win a brutal street brawl and pocket the loser\'s cash',
+              loseText: 'lose a street brawl and stagger off bloodied'
+            });
+            return null; // async: mini-game narrates its own outcome
+        } },
         { label: '🕵️ Pay a fixer to cool the heat ($200)', run: payFixer }
       ]
     });

@@ -119,9 +119,10 @@
       btn.onclick = function() {
         if (global.AINarrator && global.AINarrator.isBusy()) return;
         // The action's run() applies real mechanics and returns an action
-        // string; that string is then narrated through the normal turn loop.
+        // string to narrate. If it returns falsy it is async (e.g. launches a
+        // mini-game) and will call Story.turn() itself when it resolves.
         var actionText = a.run ? a.run() : a.label;
-        turn(actionText || a.label);
+        if (actionText) turn(actionText);
       };
       dom.actions.appendChild(btn);
     });
