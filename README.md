@@ -112,6 +112,25 @@ pivotal beats.
 
 Configure all of this from the **⚙️ AI** button in the HUD.
 
+## Real-time mini-games (it's not just text)
+
+Beyond the talk-back narration, key moments drop into **playable, skill-based
+mini-games** rendered on a canvas overlay (keyboard + touch). A shared engine
+(`systems/arcade/arcadeEngine.js`) pauses the narrated loop, runs the game, and
+returns a win/score result that the economy turns into real consequences —
+which are then narrated back into the story.
+
+| Game | Trigger | Payoff |
+|------|---------|--------|
+| **Fight** (timing brawler) | street brawls, **bounty hunters** on high heat, Living Hell **Cage Brawl** | win → cash/rep or debt paid; lose → health/heat |
+| **Driving / police chase** | courier runs, **"make a run for it"** to escape the cops | grab cash, survive → payout / heat cleared; crash → busted |
+| **Walk-around** (🚶 Explore) | HUD button in free roam | navigate a top-down district, step on a hotspot to open the shop, gigs, studio, or bed |
+| **Skill games** | lockpick a storefront, pickpocket, hack an ATM | stop-the-needle / repeat-the-sequence → cash, with heat risk |
+
+Each game has on-screen touch controls and a Forfeit, and every result is fed
+back through `systems/arcade/arcadeHooks.js` into cash, HEAT, health, reputation,
+or debt.
+
 ## Tutorial → Free Roam
 
 New players start in a mandatory, scripted **"First Night with Roxy"** tutorial —

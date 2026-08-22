@@ -46,6 +46,78 @@
     }
   };
 
+  global.ArcadeHooks.drive = function(opts) {
+    opts = opts || {};
+    if (!global.Arcade) return Promise.resolve({ win: false });
+    var chase = opts.mode === 'chase';
+    return global.Arcade.play('drive', {
+      mode: opts.mode, goalTime: opts.goalTime || (chase ? 18 : 22), difficulty: opts.difficulty || 1
+    }).then(function(res) {
+      var text;
+      if (res.win) {
+        var pay = (opts.reward || 0) + (res.score || 0);
+        if (pay && global.Economy) global.Economy.adjust(pay, chase ? 'shook the cops' : 'courier run');
+        if (chase && global.Economy) global.Economy.adjustHeat(-50);
+        else if (opts.rep && global.Economy) global.Economy.adjustReputation(opts.rep);
+        text = chase
+          ? 'floor it through the district and lose the cops in the neon, cash still on me — $' + pay
+          : 'nail the courier run across town, pocketing $' + pay + ' plus whatever I scooped up';
+      } else if (res.forfeit) {
+        text = 'pull over and bail on the run';
+      } else if (res.busted) {
+        if (global.Economy) global.Economy.adjustHeat(chase ? 20 : 15);
+        loseHealth(15);
+        text = chase ? 'wrap the car around a cruiser — the cops drag me out' : 'total the bike on the courier run, package scattered across the asphalt';
+      } else {
+        text = 'end the run in one piece';
+      }
+      narrate(text);
+      return res;
+    });
+  };
+
+  // A quick skill challenge (lockpick / pickpocket / hack). opts:
+  //   type, reward, heatOnWin, winText, loseText, difficulty
+  global.ArcadeHooks.skill = function(opts) {
+    opts = opts || {};
+    if (!global.Arcade) return Promise.resolve({ win: false });
+    return global.Arcade.play('skill', {
+      type: opts.type, title: opts.title,
+      speed: opts.speed, zoneW: opts.zoneW, pins: opts.pins, len: opts.len
+    }).then(function(res) {
+      var text;
+      if (res.win) {
+        var pay = (opts.reward || 60) + (res.score || 0) * (opts.perScore || 15);
+        if (global.Economy) global.Economy.adjust(pay, opts.type || 'skill');
+        if (opts.heatOnWin && global.Economy) global.Economy.adjustHeat(opts.heatOnWin);
+        text = (opts.winText || 'pull off the job clean') + ' — $' + pay;
+      } else if (res.forfeit) {
+        text = 'think better of it and walk away';
+      } else {
+        if (opts.heatOnLoss && global.Economy) global.Economy.adjustHeat(opts.heatOnLoss);
+        text = opts.loseText || 'botch it and have to bolt before anyone notices';
+      }
+      narrate(text);
+      return res;
+    });
+  };
+
+  // Walk-around explore: play the movement game, then dispatch the chosen spot.
+  global.ArcadeHooks.explore = function() {
+    if (!global.Arcade) return;
+    global.Arcade.play('move', {}).then(function(res) {
+      if (!res || !res.hotspot) return;
+      switch (res.hotspot) {
+        case 'shop':  global.eventBus.publish('ui.shop.open'); break;
+        case 'tv':    if (global.RealmRouter.isRegistered('living-hell')) global.RealmRouter.go('living-hell'); break;
+        case 'bed':   if (global.RealmRouter.isRegistered('dreamworld')) global.RealmRouter.go('dreamworld'); break;
+        case 'gig':   global.ArcadeHooks.drive({ mode: 'gig', reward: 80, rep: 4 }); break;
+        case 'fixer': global.eventBus.publish('ui.toast', 'The fixer is in the alley — use the fixer action to cool your heat.'); break;
+        case 'leave': default: break;
+      }
+    });
+  };
+
   // Bounty-hunter ambush when the heat is high. Fired from the world tick.
   global.eventBus.subscribe('encounter.bounty', function() {
     if (global.Arcade && global.Arcade.isOpen()) return;
