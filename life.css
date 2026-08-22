@@ -665,6 +665,29 @@ body.tutorial-active #btn-hud-city { opacity: 0.4; }
 }
 .enc-choice:hover { background: #222d42; border-color: var(--accent-cyan); transform: translateY(-1px); }
 
+/* --- Monkey's Paw --- */
+.paw-modal { text-align: center; border-color: var(--accent-gold) !important; box-shadow: 0 0 40px rgba(255,184,0,0.2); }
+.paw-emoji { font-size: 44px; line-height: 1; }
+.paw-title { color: var(--accent-gold); font-size: 20px; font-weight: 900; letter-spacing: 2px; margin: 8px 0; }
+.paw-sub { font-size: 13px; color: #d8ccae; line-height: 1.5; margin-bottom: 12px; }
+.paw-sub b { color: var(--accent-gold); }
+.paw-input {
+  width: 100%; min-height: 70px; resize: vertical;
+  background: #0c0f16; border: 1px solid var(--panel-border); color: #fff;
+  padding: 10px; border-radius: 8px; font-size: 14px; margin-bottom: 10px; font-family: inherit;
+}
+.paw-btns { display: flex; gap: 8px; margin-bottom: 10px; }
+.paw-btns .r-btn { flex: 1; padding: 10px; font-size: 12px; }
+.paw-btns .btn-primary { flex: 1; padding: 10px; }
+.paw-close { background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; text-decoration: underline; }
+.paw-modal.granting { animation: pawPulse 1s infinite; }
+@keyframes pawPulse { 0%,100% { box-shadow: 0 0 30px rgba(255,184,0,0.2); } 50% { box-shadow: 0 0 50px rgba(255,0,85,0.5); } }
+.paw-consequence { font-size: 14px; line-height: 1.6; color: #dbe4f2; margin-bottom: 14px; font-style: italic; }
+.paw-outcome { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; font-size: 13px; font-weight: 700; }
+.paw-boon { color: #00ff88; }
+.paw-curse { color: var(--accent-magenta); }
+.paw-modal.result #paw-again { width: 100%; padding: 11px; }
+
 /* Responsive tightening */
 @media (max-width: 560px) {
   #realm-root { padding: 10px; }

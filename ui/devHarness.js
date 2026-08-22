@@ -40,6 +40,7 @@
       ]},
       { title: 'Flags', btns: [
         b('🎲 Random Event', function(){ if (global.CityEvents) global.CityEvents.fire(); }),
+        b('🐒 Monkey Paw', function(){ if (global.MonkeyPaw) global.MonkeyPaw.open(); }),
         b('✅ Skip Tutorial', function(){ global.saveState.set('player.tutorialComplete', true); document.body.classList.remove('tutorial-active'); go('uls'); }),
         b('🔊 Test SFX',      function(){ global.GameAudio.play('ui_click'); }),
         b('📻 Radio Ad',      function(){ if(global.RadioAds) global.RadioAds.play(); }),

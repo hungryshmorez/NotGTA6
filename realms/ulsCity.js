@@ -19,6 +19,7 @@
   }
 
   function mount(root) {
+    global.GameAudio.play('city_ambience'); // looping street atmosphere
     global.Story.mount(root, {
       realm: 'uls',
       showTravel: true,
@@ -76,6 +77,7 @@
   }
 
   function unmount() {
+    global.GameAudio.stop('city_ambience');
     if (global.Story && global.Story.unmount) global.Story.unmount();
   }
 

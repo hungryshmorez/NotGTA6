@@ -12,11 +12,14 @@
           global.GameAudio.registerPack(global.SFX_PAYLOAD.sfx_packs[i]);
         }
       }
-      // 2. Normalize any relative SFX paths through the CDN resolver.
+      // 2. Normalize remote SFX paths through the CDN resolver, but leave
+      //    locally-bundled files (assets/…) alone so they load from the site.
       if (global.ULSConfig && global.SFX_PAYLOAD && global.SFX_PAYLOAD.sfx_packs) {
         global.SFX_PAYLOAD.sfx_packs.forEach(function(pack) {
           (pack.items || []).forEach(function(item) {
-            if (item.path) item.path = global.ULSConfig.resolve(item.path);
+            if (item.path && !/^(assets\/|\.\/|\/)/.test(item.path)) {
+              item.path = global.ULSConfig.resolve(item.path);
+            }
           });
         });
       }

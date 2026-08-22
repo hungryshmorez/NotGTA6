@@ -186,7 +186,22 @@
         });
     },
 
-    reset: function() { history = []; }
+    reset: function() { history = []; },
+
+    // Raw text completion for features that need free-form prose (e.g. the
+    // Monkey's Paw), not the game JSON contract. Resolves to '' on failure.
+    complete: function(system, user) {
+      var messages = [{ role: 'system', content: system }, { role: 'user', content: user }];
+      var provider = (global.AIConfig.hasKey() && global.AIConfig.get('byok.enabled')) ? 'byok'
+        : (global.AIConfig.get('defaultProvider') === 'local' && global.LocalModel && global.LocalModel.isReady()) ? 'local'
+        : 'pollinations';
+      return dispatch(provider, messages)
+        .then(function(raw) { return String(raw || '').trim(); })
+        .catch(function() {
+          if (provider !== 'pollinations') return callPollinations(messages).then(function(r){ return String(r||'').trim(); }).catch(function(){ return ''; });
+          return '';
+        });
+    }
   };
 
   global.eventBus.subscribe('state.reset', function() { history = []; });

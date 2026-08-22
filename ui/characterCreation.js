@@ -28,8 +28,10 @@
     document.body.appendChild(overlay);
 
     // Suggested roles for inspiration (looted concept from the canonical ULS).
-    var SUGGESTED = ['Courier', 'Street Merchant', 'Crew Member', 'Hacker', 'Fixer',
-      'Bounty Hunter', 'Nightlife Performer', 'Corporate Exec', 'Cab Driver', 'Drifter'];
+    var SUGGESTED = ['Courier', 'Street Merchant', 'Reformed Hacker', 'Fixer',
+      'Bounty Hunter', 'Syndicate Thug', 'Corporate Runaway', 'Tech Scavenger',
+      'Underground Gambler', 'Black Market Dealer', 'Driven Vigilante',
+      'Charismatic Con Artist', 'Nightlife Performer', 'Ghost from the Past'];
     var rolesMount = overlay.querySelector('#cc-roles');
     SUGGESTED.forEach(function(role) {
       var chip = document.createElement('button');

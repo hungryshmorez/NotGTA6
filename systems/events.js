@@ -88,6 +88,14 @@
       choices: [
         { label: '👁️ Touch the wall', run: function() { var s = global.saveState.get('global'); s.sanity = Math.max(0, s.sanity - 8); global.saveState.set('global', s); global.eventBus.publish('player.stats.updated', s); if (Math.random() < 0.5 && global.RealmRouter.isRegistered('backrooms')) { global.saveState.set('slices.backrooms.glitchedOnce', true); global.eventBus.publish('ui.toast', '⚠️ The wall gives way...'); setTimeout(function(){ global.RealmRouter.go('backrooms'); }, 900); } else narrate('press your palm to the cold wall — it\'s solid again, but your skin crawls'); } },
         { label: '🙈 Look away fast', run: function() { narrate('you look away and keep walking. Some doors you don\'t open'); } }
+      ]}; } },
+
+    { weight: 1, when: function() { return global.saveState.get('slices.monkeyPaw.wishes', 3) > 0; }, build: function() { return {
+      emoji: '🐒', title: 'A WITHERED PAW',
+      text: 'A hunched stranger presses something into your hand and is gone before you can blink — a shriveled monkey\'s paw, curled like a question. "Three wishes," he rasps from the crowd. "Word them like your life depends on it."',
+      choices: [
+        { label: '✋ Take the paw', run: function() { if (global.MonkeyPaw) global.MonkeyPaw.open(); } },
+        { label: '🚮 Toss it in the gutter', run: function() { narrate('you drop the paw in a storm drain. Some luck you don\'t want'); } }
       ]}; } }
   ];
 
@@ -114,6 +122,7 @@
         '<div class="enc-choices">' + choicesHtml + '</div>' +
       '</div>';
     document.body.appendChild(overlay);
+    if (global.GameAudio) global.GameAudio.play('notification');
     if (global.Juice) global.Juice.shake(1);
 
     overlay.querySelectorAll('.enc-choice').forEach(function(btn) {
