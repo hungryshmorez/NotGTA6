@@ -108,6 +108,22 @@ pivotal beats.
 
 Configure all of this from the **⚙️ AI** button in the HUD.
 
+## Tutorial → Free Roam
+
+New players start in a mandatory, scripted **"First Night with Roxy"** tutorial —
+a ~12-minute GTA-style onboarding, guided by the fixer **Roxy**, that tours every
+module in order (talk-back narration → HUD/needs → shop → a paying gig → police
+HEAT and shaking it → the 7-station radio → Living Hell → Dreamworld → the
+Backrooms → the debt/keys victory spine). Each beat follows a Narrate → Describe →
+Ask loop, coach-marks the real control to use, and applies **real** state changes
+(you actually earn a Reality Encryption Key and pay down real debt during the
+tour). It is scripted-first so it can never stall, with AI scene images layered
+on when online.
+
+**Free roam** (the open, AI-narrated city sandbox) unlocks only after the
+tutorial completes (`player.tutorialComplete`). From there the whole city is
+open — type anything, go anywhere.
+
 ## Content safety
 
 `kernel/safety.js` sanitizes role names and profanity by default. A per-save
