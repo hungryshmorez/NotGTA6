@@ -112,6 +112,14 @@ pivotal beats.
 
 Configure all of this from the **⚙️ AI** button in the HUD.
 
+## Parody radio commercials
+
+The 7-station radio occasionally cuts to an in-world **commercial break** — a
+text sponsor spot on the LCD (Judge Hatchet, Doug & Doug Lawyers, Big Sal's Auto
+Emporium, Love Asylum, Fix-It-All, Repo Rage, Kitchen Nightmare Fuel). Ad copy
+lives in `data/radio_ads.js`; `ui/radioAds.js` runs a break between tracks on a
+cooldown while the music keeps playing.
+
 ## Real-time mini-games (it's not just text)
 
 Beyond the talk-back narration, key moments drop into **playable, skill-based
