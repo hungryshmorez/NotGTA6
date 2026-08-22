@@ -543,9 +543,37 @@ body.tutorial-active #btn-hud-city { opacity: 0.4; }
 .arcade-hint { padding: 6px 12px; font-size: 11px; color: var(--text-muted); text-align: center; border-top: 1px solid var(--panel-border); }
 .arcade-hint b { color: var(--accent-cyan); }
 
+/* --- Dev harness (?dev=1 or Ctrl+Shift+D) --- */
+#dev-harness {
+  position: fixed; top: 60px; right: 10px; z-index: 3000;
+  width: 210px; max-height: 80vh; overflow-y: auto;
+  background: rgba(8,10,16,0.96); border: 1px solid var(--accent-gold);
+  border-radius: 8px; padding: 8px; font-size: 11px;
+  box-shadow: 0 0 24px rgba(0,0,0,0.6);
+}
+.dev-head { display: flex; justify-content: space-between; align-items: center; color: var(--accent-gold); margin-bottom: 6px; }
+.dev-head button { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 14px; }
+.dev-group { margin-bottom: 8px; }
+.dev-title { color: var(--text-muted); text-transform: uppercase; font-size: 9px; letter-spacing: 1px; }
+.dev-btns { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; }
+.dev-btn {
+  background: #161d2b; border: 1px solid var(--panel-border); color: var(--text-main);
+  padding: 4px 6px; border-radius: 4px; cursor: pointer; font-size: 10px;
+}
+.dev-btn:hover { border-color: var(--accent-gold); }
+
+/* --- Character creation role chips --- */
+.cc-roles { display: flex; flex-wrap: wrap; gap: 5px; margin: 4px 0 12px; }
+.cc-role-chip {
+  background: #141b29; border: 1px solid var(--panel-border); color: var(--text-muted);
+  font-size: 11px; padding: 3px 8px; border-radius: 12px; cursor: pointer;
+}
+.cc-role-chip:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+
 /* Responsive tightening */
 @media (max-width: 560px) {
   .scene-media-wrapper { height: 160px; }
   .hud-meters { min-width: 100%; order: 3; }
   .decision-grid { grid-template-columns: 1fr; }
+  #dev-harness { width: 170px; }
 }

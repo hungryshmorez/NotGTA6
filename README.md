@@ -155,6 +155,14 @@ on when online.
 tutorial completes (`player.tutorialComplete`). From there the whole city is
 open — type anything, go anywhere.
 
+## Dev harness
+
+Open with `?dev=1` in the URL or press **Ctrl+Shift+D** for a floating debug
+panel (looted from the canonical ULS): jump to any realm, launch every
+mini-game, set stats (cash, heat, heal, kill, keys, pay debt), skip the
+tutorial, test SFX/ads, or reset the save. Ideal for demoing the whole game
+fast. See `ui/devHarness.js`.
+
 ## Content safety
 
 `kernel/safety.js` sanitizes role names and profanity by default. A per-save
