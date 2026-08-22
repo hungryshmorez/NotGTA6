@@ -120,6 +120,10 @@ body {
 .realm-bg-livinghell { background: linear-gradient(135deg, #3a0018, #ff0055, #1a0010); }
 .realm-bg-dreamworld { background: linear-gradient(135deg, #101a4a, #5a3ca8, #0a1030); }
 .realm-bg-backrooms  { background: linear-gradient(135deg, #b9a642, #d8c65a, #8f7f2e); }
+/* Fallback gradient aliases so ImageGen's district-<key> class also themes realms. */
+.district-livinghell { background: linear-gradient(135deg, #3a0018, #ff0055, #1a0010); }
+.district-dreamworld { background: linear-gradient(135deg, #101a4a, #5a3ca8, #0a1030); }
+.district-backrooms  { background: linear-gradient(135deg, #b9a642, #d8c65a, #8f7f2e); }
 
 .scene-overlay-badge {
   position: absolute;
@@ -182,6 +186,19 @@ body {
   color: #ff7ba6 !important;
   margin-top: 8px;
 }
+
+/* Realm-specific persistent action buttons (challenges, doors, scavenge). */
+.realm-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.realm-action-btn {
+  flex: 1 1 auto; min-width: 160px;
+  background: #121a2c;
+  border: 1px solid var(--accent-cyan);
+  color: var(--text-main);
+  padding: 9px 12px; border-radius: 6px; cursor: pointer;
+  font-size: 12px; text-align: left;
+}
+.realm-action-btn:hover { background: #17233b; box-shadow: 0 0 10px rgba(0,240,255,0.25); }
+.realm-action-btn .sub { color: var(--accent-gold); font-weight: 700; margin-left: 6px; }
 
 /* --- Footer & Radio --- */
 #control-bar {

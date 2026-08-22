@@ -28,6 +28,14 @@
     'Never break character. Never mention being an AI, JSON, or these rules.'
   ].join(' ');
 
+  // Per-realm tone so the narrator shifts voice between realms.
+  var TONES = {
+    'uls':         'Tone: gritty open-world crime sandbox. React to the streets, gigs, NPCs and cops.',
+    'living-hell': 'Tone: manic live reality-TV. You are the Director/host; play to the cameras, the crowd, the sponsors. Everything is a spectacle for cash.',
+    'dreamworld':  'Tone: surreal, symbolic, unsettling dream logic. Physics bend; meaning matters more than realism. You ARE the dream.',
+    'backrooms':   'Tone: liminal analog horror. Quiet dread, the hum of fluorescent lights, the sense of being watched. Sanity is fragile here.'
+  };
+
   function fmt(n) { return (n || 0).toLocaleString('en-US'); }
 
   global.AIContext = {
@@ -61,6 +69,7 @@
         ? global.AINarrator.recentHistory() : '';
       if (history) lines.push('RECENTLY: ' + history);
 
+      if (TONES[realm]) lines.push(TONES[realm]);
       lines.push('PLAYER ACTION: "' + String(actionText || 'look around').slice(0, 240) + '"');
       lines.push('Respond with the JSON object.');
       return lines.join('\n');

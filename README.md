@@ -74,10 +74,14 @@ ui/                   hud, radio, shop, toast, characterCreation, credits
 
 ## AI narration & scene images
 
-The city hub is a **choose-your-own-story that talks back**. Type anything into
+**Every realm** is a **choose-your-own-story that talks back**. Type anything into
 the action bar (or click an AI-suggested choice); the narrator responds in
 character, drives events and consequences, and a fresh scene image is generated
-each turn.
+each turn. The narrator shifts tone per realm — gritty crime on the streets,
+manic live-TV in Living Hell, surreal dream-logic in the Dreamworld, and analog
+horror in the Backrooms — while each realm's mechanics (gigs, challenge payouts,
+dream boons, Reality Encryption Key fragments) apply real stakes through the same
+loop. A single config-driven engine (`systems/story.js`) powers all four.
 
 ### Tiered narrator (token-lean by design)
 

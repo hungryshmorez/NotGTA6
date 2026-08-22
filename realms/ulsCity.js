@@ -1,13 +1,32 @@
 // /realms/ulsCity.js - ULS City Hub realm (Chroma City)
-// The city is now AI-narrated: the Story engine owns the scene card, freeform
-// actions and AI-suggested choices drive the loop, and each turn regenerates
-// the scene image. This realm just mounts the Story shell and refreshes it when
-// the world clock / weather changes.
+// AI-narrated open sandbox. The Story engine owns the scene card; this realm
+// supplies the city config (travel bar on, a fixer action to burn HEAT) and
+// keeps the scene meta in sync with ambient world changes.
 (function(global) {
-  function mount(root) {
-    global.Story.mount(root);
+  function payFixer() {
+    var money = global.saveState.get('global.money', 0);
+    if (money < 200) {
+      global.eventBus.publish('ui.toast', 'Not enough cash for the fixer ($200).');
+      global.GameAudio.play('ui_error');
+      return 'try to pay a fixer to cool my heat but come up short on cash';
+    }
+    global.Economy.adjust(-200, 'fixer bribe');
+    var stats = global.saveState.get('global');
+    stats.heat = Math.max(0, stats.heat - 40);
+    global.saveState.set('global', stats);
+    global.eventBus.publish('player.stats.updated', stats);
+    return 'slip a fixer $200 to make the heat disappear';
+  }
 
-    // Keep the scene meta/travel in sync with ambient world changes.
+  function mount(root) {
+    global.Story.mount(root, {
+      realm: 'uls',
+      showTravel: true,
+      actions: [
+        { label: '🕵️ Pay a fixer to cool the heat ($200)', run: payFixer }
+      ]
+    });
+
     global.RealmRouter.bindRealmListener('time.phase.changed', function() { global.Story.refresh(); });
     global.RealmRouter.bindRealmListener('player.stats.updated', function() { global.Story.refresh(); });
   }
